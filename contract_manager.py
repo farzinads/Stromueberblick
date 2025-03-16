@@ -3,16 +3,15 @@ from ablesung_manager import AblesungManager
 from tarif_manager import TarifManager
 from rechnungen_manager import RechnungenManager
 from zahlung_manager import ZahlungManager
+from details_tabs import DetailsTabs
 
 class ContractManager:
     def __init__(self, app):
-        self.root = app.root
         self.app = app
+        self.root = app.root
         self.data = app.data
-        self.contract_frame = app.contract_frame  # تغییر به contract_frame
+        self.contract_frame = app.contract_frame
         self.current_contract = None
-        if "contracts" not in self.data:
-            self.data["contracts"] = []
         self.setup_contract_page()
 
     def setup_contract_page(self):
@@ -37,7 +36,7 @@ class ContractManager:
 
         ttk.Button(input_frame, text="Vertrag speichern", command=self.save_contract).grid(row=len(fields)+1, column=0, columnspan=2, pady=10)
 
-        self.beenden_button = ttk.Button(self.contract_frame, text="Beenden", command=self.root.quit, style="Custom.TButton", width=10)
+        self.beenden_button = ttk.Button(self.contract_frame, text="Beenden", command=self.root.quit, width=10)
         self.beenden_button.place(x=975, y=5, anchor="ne")
 
         filter_frame = ttk.Frame(self.contract_frame)
@@ -149,7 +148,7 @@ class ContractManager:
             return
         self.current_contract = self.contract_table.item(selected[0], "values")[0]
 
-        # باز کردن پنجره جدید برای تب‌ها
+        # پنجره جدید برای تب‌ها
         contract_window = tk.Toplevel(self.root)
         contract_window.title(f"Vertrag: {self.current_contract}")
         contract_window.geometry("1000x650")
@@ -157,31 +156,35 @@ class ContractManager:
         notebook = ttk.Notebook(contract_window)
         notebook.pack(fill="both", expand=True)
 
-        # تعریف تب‌ها
+        # تب‌ها
         tarif_tab = ttk.Frame(notebook)
         ablesung_tab = ttk.Frame(notebook)
         energiekosten_tab = ttk.Frame(notebook)
         zahlungen_tab = ttk.Frame(notebook)
         rechnungen_tab = ttk.Frame(notebook)
+        details_tab = ttk.Frame(notebook)
 
         notebook.add(tarif_tab, text="Tarifedaten")
         notebook.add(ablesung_tab, text="Ablesung")
         notebook.add(energiekosten_tab, text="Energiekosten")
         notebook.add(zahlungen_tab, text="Zahlungen")
         notebook.add(rechnungen_tab, text="Rechnungen")
+        notebook.add(details_tab, text="Details")
 
-        # راه‌اندازی تب‌ها
+        # راه‌اندازی مدیرها
         self.tarif_manager = TarifManager(self, tarif_tab)
         self.ablesung_manager = AblesungManager(self, ablesung_tab)
-        self.energiekosten_manager = AblesungManager(self, energiekosten_tab)  # موقتاً از AblesungManager استفاده می‌کنیم
+        self.energiekosten_manager = AblesungManager(self, energiekosten_tab)  # موقتاً
         self.zahlung_manager = ZahlungManager(self, zahlungen_tab)
         self.rechnungen_manager = RechnungenManager(self, rechnungen_tab)
+        self.details_manager = DetailsTabs(self, details_tab)
 
         self.tarif_manager.setup_tarif_tab()
         self.ablesung_manager.setup_ablesung_tab()
         self.energiekosten_manager.setup_ablesung_tab()  # موقتاً
         self.zahlung_manager.setup_zahlung_tab()
         self.rechnungen_manager.setup_rechnungen_tab()
+        self.details_manager.setup_details_tabs()
 
     def clear_contract_entries(self):
         self.contract_type.set("Hausstrom")
