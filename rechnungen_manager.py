@@ -1,4 +1,4 @@
-from base import tk, ttk, messagebox, save_data, os
+from base import tk, ttk, messagebox, os
 
 class RechnungenManager:
     def __init__(self, app):

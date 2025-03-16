@@ -1,4 +1,4 @@
-from base import tk, ttk, messagebox, DateEntry, save_data, PDF_DIR, os
+from base import tk, ttk, messagebox, DateEntry, os
 from datetime import datetime
 
 class AblesungManager:
@@ -66,7 +66,7 @@ class AblesungManager:
             self.data["ablesungen"] = []
         self.data["ablesungen"].append(ablesung)
         self.data["ablesungen"] = sorted(self.data["ablesungen"], key=lambda x: datetime.strptime(x["datum"], "%d.%m.%Y"))
-        save_data(self.data)
+        self.app.save_data()  # تغییر به self.app.save_data()
         messagebox.showinfo("Erfolg", "Ablesung wurde gespeichert!")
         self.clear_ablesung_entries()
         self.update_ablesung_table()
@@ -138,6 +138,6 @@ class AblesungManager:
         if "rechnungen" not in self.data:
             self.data["rechnungen"] = []
         self.data["rechnungen"].append(rechnung)
-        save_data(self.data)
+        self.app.save_data()  # تغییر به self.app.save_data()
         messagebox.showinfo("Erfolg", "Rechnung wurde به Rechnungen übertragen!")
-        self.root.nametowidget(self.rechnungen_tab.winfo_name()).rechnungen_manager.update_rechnungen_table()
+        self.app.rechnungen_manager.update_rechnungen_table()  # آپدیت جدول Rechnungen

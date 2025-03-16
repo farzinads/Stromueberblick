@@ -1,4 +1,4 @@
-from base import tk, ttk, messagebox, DateEntry, save_data, os
+from base import tk, ttk, messagebox, DateEntry, os
 
 class ContractManager:
     def __init__(self, app):
@@ -64,7 +64,7 @@ class ContractManager:
             messagebox.showerror("Fehler", "Vertragskonto existiert bereits!")
             return
         self.data["verträge"].append(contract)
-        save_data(self.data)
+        self.app.save_data()  # تغییر به self.app.save_data()
         messagebox.showinfo("Erfolg", "Vertrag wurde gespeichert!")
         self.clear_contract_entries()
         self.update_contract_table()
@@ -90,7 +90,7 @@ class ContractManager:
             if contract["vertragskonto"] == vertragskonto:
                 self.data["verträge"].pop(i)
                 break
-        save_data(self.data)
+        self.app.save_data()  # تغییر به self.app.save_data()
         messagebox.showinfo("Erfolg", "Vertrag wurde gelöscht!")
         self.update_contract_table()
 
@@ -102,5 +102,3 @@ class ContractManager:
         selected_contract = self.contract_table.item(selected[0], "values")[0]
         self.app.current_contract = selected_contract
         self.app.update_all_tabs()
-        # خط زیر حذف شده چون تابع وجود نداره:
-        # self.app.update_verbrauchsmengen_table()
