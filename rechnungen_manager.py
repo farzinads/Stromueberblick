@@ -20,19 +20,24 @@ class RechnungenManager:
         self.rechnungsnummer = ttk.Entry(rechnungen_frame)
         self.rechnungsnummer.grid(row=0, column=1, pady=5)
 
-        ttk.Label(rechnungen_frame, text="Datum:").grid(row=1, column=0, pady=5, sticky="w")
+        # اضافه کردن فیلد Bemerkung
+        ttk.Label(rechnungen_frame, text="Bemerkung:").grid(row=1, column=0, pady=5, sticky="w")
+        self.bemerkung = ttk.Entry(rechnungen_frame)
+        self.bemerkung.grid(row=1, column=1, pady=5)
+
+        ttk.Label(rechnungen_frame, text="Datum:").grid(row=2, column=0, pady=5, sticky="w")
         self.rechnungsdatum = DateEntry(rechnungen_frame, date_pattern="dd.mm.yyyy")
-        self.rechnungsdatum.grid(row=1, column=1, pady=5)
+        self.rechnungsdatum.grid(row=2, column=1, pady=5)
 
-        ttk.Label(rechnungen_frame, text="Betrag (€):").grid(row=2, column=0, pady=5, sticky="w")
+        ttk.Label(rechnungen_frame, text="Betrag (€):").grid(row=3, column=0, pady=5, sticky="w")
         self.rechnung_betrag = ttk.Entry(rechnungen_frame)
-        self.rechnung_betrag.grid(row=2, column=1, pady=5)
+        self.rechnung_betrag.grid(row=3, column=1, pady=5)
 
-        ttk.Button(rechnungen_frame, text="PDF hochladen", command=self.upload_pdf).grid(row=3, column=0, pady=5)
+        ttk.Button(rechnungen_frame, text="PDF hochladen", command=self.upload_pdf).grid(row=4, column=0, pady=5)
         self.pdf_label = ttk.Label(rechnungen_frame, text="Kein PDF ausgewählt")
-        self.pdf_label.grid(row=3, column=1, pady=5, sticky="w")
+        self.pdf_label.grid(row=4, column=1, pady=5, sticky="w")
 
-        ttk.Button(rechnungen_frame, text="Speichern", command=self.save_rechnung).grid(row=4, column=0, columnspan=2, pady=10)
+        ttk.Button(rechnungen_frame, text="Speichern", command=self.save_rechnung).grid(row=5, column=0, columnspan=2, pady=10)
 
         # جدول
         table_frame_rechnungen = ttk.Frame(self.rechnungen_tab, relief="solid", borderwidth=2)
