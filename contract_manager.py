@@ -104,7 +104,6 @@ class ContractManager:
         self.app.update_all_tabs()
 
     def show_context_menu_contract(self, event):
-        """نمایش منوی راست‌کلیک"""
         row = self.contract_table.identify_row(event.y)
         if row:
             self.contract_table.selection_set(row)
