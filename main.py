@@ -47,7 +47,7 @@ class MainApp:
         self.details_tabs = DetailsTabs(self)
 
         # فراخوانی توابع راه‌اندازی تب‌ها
-        self.contract_manager.setup_contract_tab()
+        self.contract_manager.setup_contract_page()  # تغییر به setup_contract_page
         self.ablesung_manager.setup_ablesung_tab()
         self.tarif_manager.setup_tarif_tab()
         self.rechnungen_manager.setup_rechnungen_tab()
@@ -68,7 +68,7 @@ class MainApp:
             json.dump(self.data, f, ensure_ascii=False, indent=4)
 
     def update_all_tabs(self):
-        self.contract_manager.update_contract_table()
+        self.contract_manager.filter_contracts(None)  # تغییر به filter_contracts برای سازگاری
         self.ablesung_manager.update_ablesung_table()
         self.tarif_manager.update_tarif_table()
         self.rechnungen_manager.update_rechnungen_table()
