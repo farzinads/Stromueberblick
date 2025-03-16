@@ -64,7 +64,7 @@ class ContractManager:
             messagebox.showerror("Fehler", "Vertragskonto existiert bereits!")
             return
         self.data["verträge"].append(contract)
-        self.app.save_data()  # تغییر به self.app.save_data()
+        self.app.save_data()
         messagebox.showinfo("Erfolg", "Vertrag wurde gespeichert!")
         self.clear_contract_entries()
         self.update_contract_table()
@@ -90,7 +90,7 @@ class ContractManager:
             if contract["vertragskonto"] == vertragskonto:
                 self.data["verträge"].pop(i)
                 break
-        self.app.save_data()  # تغییر به self.app.save_data()
+        self.app.save_data()
         messagebox.showinfo("Erfolg", "Vertrag wurde gelöscht!")
         self.update_contract_table()
 
@@ -102,3 +102,10 @@ class ContractManager:
         selected_contract = self.contract_table.item(selected[0], "values")[0]
         self.app.current_contract = selected_contract
         self.app.update_all_tabs()
+
+    def show_context_menu_contract(self, event):
+        """نمایش منوی راست‌کلیک"""
+        row = self.contract_table.identify_row(event.y)
+        if row:
+            self.contract_table.selection_set(row)
+            self.context_menu_contract.post(event.x_root, event.y_root)
