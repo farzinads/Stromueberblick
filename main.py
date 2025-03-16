@@ -1,29 +1,57 @@
 import tkinter as tk
-from app import ElectricityTrackerApp
+import json
+import os
 from contract_manager import ContractManager
-from details_tabs import DetailsTabs
-from tarif_manager import TarifManager
 from ablesung_manager import AblesungManager
-from zahlung_manager import ZahlungManager
+from tarif_manager import TarifManager
 from rechnungen_manager import RechnungenManager
+from zahlung_manager import ZahlungManager
+from details_tabs import DetailsTabs
 
-class MainApp(ElectricityTrackerApp, ContractManager, DetailsTabs, TarifManager, AblesungManager, ZahlungManager, RechnungenManager):
+class MainApp:
     def __init__(self, root):
-        ElectricityTrackerApp.__init__(self, root)
-        
-        # راه‌اندازی صفحات و تب‌ها
-        self.setup_contract_page()  # از ContractManager
-        self.setup_contract_details_page()  # از DetailsTabs
-        self.setup_tarifedaten_tab()  # از TarifManager
-        self.setup_ablesung_tab()  # از AblesungManager
-        self.setup_zahlungen_tab()  # از ZahlungManager
-        self.setup_energiekosten_tab()  # از ZahlungManager
-        self.setup_rechnungen_tab()  # از RechnungenManager
-        
-        self.switch_page(self.contract_frame)
+        self.root = root
+        self.root.title("Electricity Tracker")
+        self.current_contract = None
 
-    def setup_rechnungen_tab(self):
-        RechnungenManager.setup_rechnungen_tab(self)
+        # بارگذاری داده‌ها از فایل JSON
+        self.data = self.load_data()
+
+        # تعریف مدیرها و راه‌اندازی تب‌ها
+        self.contract_manager = ContractManager(self)
+        self.ablesung_manager = AblesungManager(self)
+        self.tarif_manager = TarifManager(self)
+        self.rechnungen_manager = RechnungenManager(self)
+        self.zahlung_manager = ZahlungManager(self)
+        self.details_tabs = DetailsTabs(self)
+
+        # فراخوانی توابع راه‌اندازی تب‌ها
+        self.contract_manager.setup_contract_tab()
+        self.ablesung_manager.setup_ablesung_tab()
+        self.tarif_manager.setup_tarif_tab()
+        self.rechnungen_manager.setup_rechnungen_tab()
+        self.zahlung_manager.setup_zahlung_tab()
+        self.details_tabs.setup_details_tabs()
+
+    def load_data(self):
+        """بارگذاری داده‌ها از electricity_data.json"""
+        try:
+            with open("electricity_data.json", "r", encoding="utf-8") as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return {}  # اگه فایل نبود یا خالی بود، یه دیکشنری خالی برگردون
+
+    def save_data(self):
+        """ذخیره داده‌ها توی electricity_data.json"""
+        with open("electricity_data.json", "w", encoding="utf-8") as f:
+            json.dump(self.data, f, ensure_ascii=False, indent=4)
+
+    def update_all_tabs(self):
+        self.contract_manager.update_contract_table()
+        self.ablesung_manager.update_ablesung_table()
+        self.tarif_manager.update_tarif_table()
+        self.rechnungen_manager.update_rechnungen_table()
+        self.zahlung_manager.update_zahlung_table()
 
 if __name__ == "__main__":
     root = tk.Tk()
