@@ -3,10 +3,10 @@ from base import tk, ttk, messagebox, DateEntry, os
 class TarifManager:
     def __init__(self, app):
         self.root = app.root
+        self.app = app
         self.data = app.data
         self.current_contract = app.current_contract
         self.tarif_tab = app.tarif_tab
-        self.setup_tarif_tab()
 
     def setup_tarif_tab(self):
         tarif_frame = ttk.Frame(self.tarif_tab)
@@ -63,7 +63,7 @@ class TarifManager:
         if "tarife" not in self.data:
             self.data["tarife"] = []
         self.data["tarife"].append(tarif)
-        self.app.save_data()  # تغییر به self.app.save_data()
+        self.app.save_data()
         messagebox.showinfo("Erfolg", "Tarif wurde gespeichert!")
         self.clear_tarif_entries()
         self.update_tarif_table()

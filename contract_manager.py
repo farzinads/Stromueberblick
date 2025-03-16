@@ -11,8 +11,10 @@ class ContractManager:
         self.root = app.root
         self.data = app.data
         self.contract_frame = app.contract_frame
+        self.tabs_frame = app.tabs_frame
         self.current_contract = None
         self.setup_contract_page()
+        self.setup_tabs_page()
 
     def setup_contract_page(self):
         fields = [("Anbieter:", "company"), ("Anschrift:", "company_address"), ("Telefonnummer:", "phone"),
@@ -77,6 +79,45 @@ class ContractManager:
         self.contract_table.bind("<Double-1>", lambda event: self.open_contract())
 
         self.filter_contracts(None)
+
+    def setup_tabs_page(self):
+        # نوت‌بوک برای تب‌ها
+        self.notebook = ttk.Notebook(self.tabs_frame)
+        self.notebook.pack(fill="both", expand=True)
+
+        # تعریف تب‌ها
+        self.tarif_tab = ttk.Frame(self.notebook)
+        self.ablesung_tab = ttk.Frame(self.notebook)
+        self.energiekosten_tab = ttk.Frame(self.notebook)
+        self.zahlungen_tab = ttk.Frame(self.notebook)
+        self.rechnungen_tab = ttk.Frame(self.notebook)
+        self.details_tab = ttk.Frame(self.notebook)
+
+        self.notebook.add(self.tarif_tab, text="Tarifedaten")
+        self.notebook.add(self.ablesung_tab, text="Ablesung")
+        self.notebook.add(self.energiekosten_tab, text="Energiekosten")
+        self.notebook.add(self.zahlungen_tab, text="Zahlungen")
+        self.notebook.add(self.rechnungen_tab, text="Rechnungen")
+        self.notebook.add(self.details_tab, text="Details")
+
+        # دکمه Zurück
+        self.zuruck_button = ttk.Button(self.tabs_frame, text="Zurück", command=self.app.show_contract_page)
+        self.zuruck_button.pack(pady=5)
+
+        # راه‌اندازی مدیرها
+        self.tarif_manager = TarifManager(self)
+        self.ablesung_manager = AblesungManager(self)
+        self.energiekosten_manager = AblesungManager(self)  # موقتاً
+        self.zahlung_manager = ZahlungManager(self)
+        self.rechnungen_manager = RechnungenManager(self)
+        self.details_manager = DetailsTabs(self)
+
+        self.tarif_manager.setup_tarif_tab()
+        self.ablesung_manager.setup_ablesung_tab()
+        self.energiekosten_manager.setup_ablesung_tab()  # موقتاً
+        self.zahlung_manager.setup_zahlung_tab()
+        self.rechnungen_manager.setup_rechnungen_tab()
+        self.details_manager.setup_details_tabs()
 
     def save_contract(self):
         contract = {"contract_type": self.contract_type.get()}
@@ -147,44 +188,8 @@ class ContractManager:
             messagebox.showwarning("Warnung", "Bitte einen Vertrag auswählen!")
             return
         self.current_contract = self.contract_table.item(selected[0], "values")[0]
-
-        # پنجره جدید برای تب‌ها
-        contract_window = tk.Toplevel(self.root)
-        contract_window.title(f"Vertrag: {self.current_contract}")
-        contract_window.geometry("1000x650")
-
-        notebook = ttk.Notebook(contract_window)
-        notebook.pack(fill="both", expand=True)
-
-        # تب‌ها
-        tarif_tab = ttk.Frame(notebook)
-        ablesung_tab = ttk.Frame(notebook)
-        energiekosten_tab = ttk.Frame(notebook)
-        zahlungen_tab = ttk.Frame(notebook)
-        rechnungen_tab = ttk.Frame(notebook)
-        details_tab = ttk.Frame(notebook)
-
-        notebook.add(tarif_tab, text="Tarifedaten")
-        notebook.add(ablesung_tab, text="Ablesung")
-        notebook.add(energiekosten_tab, text="Energiekosten")
-        notebook.add(zahlungen_tab, text="Zahlungen")
-        notebook.add(rechnungen_tab, text="Rechnungen")
-        notebook.add(details_tab, text="Details")
-
-        # راه‌اندازی مدیرها
-        self.tarif_manager = TarifManager(self, tarif_tab)
-        self.ablesung_manager = AblesungManager(self, ablesung_tab)
-        self.energiekosten_manager = AblesungManager(self, energiekosten_tab)  # موقتاً
-        self.zahlung_manager = ZahlungManager(self, zahlungen_tab)
-        self.rechnungen_manager = RechnungenManager(self, rechnungen_tab)
-        self.details_manager = DetailsTabs(self, details_tab)
-
-        self.tarif_manager.setup_tarif_tab()
-        self.ablesung_manager.setup_ablesung_tab()
-        self.energiekosten_manager.setup_ablesung_tab()  # موقتاً
-        self.zahlung_manager.setup_zahlung_tab()
-        self.rechnungen_manager.setup_rechnungen_tab()
-        self.details_manager.setup_details_tabs()
+        self.app.current_contract = self.current_contract
+        self.app.show_tabs_page()  # رفتن به صفحه تب‌ها
 
     def clear_contract_entries(self):
         self.contract_type.set("Hausstrom")

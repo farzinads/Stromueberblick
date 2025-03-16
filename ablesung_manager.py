@@ -1,13 +1,12 @@
 from base import tk, ttk, messagebox, DateEntry, os
 
 class AblesungManager:
-    def __init__(self, app, tab):
+    def __init__(self, app):
         self.root = app.root
         self.app = app
         self.data = app.data
         self.current_contract = app.current_contract
-        self.ablesung_tab = tab
-        self.setup_ablesung_tab()
+        self.ablesung_tab = app.ablesung_tab
 
     def setup_ablesung_tab(self):
         ablesung_frame = ttk.Frame(self.ablesung_tab)
