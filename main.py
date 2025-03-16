@@ -1,6 +1,4 @@
 import tkinter as tk
-import json
-import os
 from contract_manager import ContractManager
 from ablesung_manager import AblesungManager
 from tarif_manager import TarifManager
@@ -13,9 +11,6 @@ class MainApp:
         self.root = root
         self.root.title("Electricity Tracker")
         self.current_contract = None
-
-        # بارگذاری داده‌ها از فایل JSON
-        self.data = self.load_data()
 
         # تعریف مدیرها و راه‌اندازی تب‌ها
         self.contract_manager = ContractManager(self)
@@ -32,19 +27,6 @@ class MainApp:
         self.rechnungen_manager.setup_rechnungen_tab()
         self.zahlung_manager.setup_zahlung_tab()
         self.details_tabs.setup_details_tabs()
-
-    def load_data(self):
-        """بارگذاری داده‌ها از electricity_data.json"""
-        try:
-            with open("electricity_data.json", "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            return {}  # اگه فایل نبود یا خالی بود، یه دیکشنری خالی برگردون
-
-    def save_data(self):
-        """ذخیره داده‌ها توی electricity_data.json"""
-        with open("electricity_data.json", "w", encoding="utf-8") as f:
-            json.dump(self.data, f, ensure_ascii=False, indent=4)
 
     def update_all_tabs(self):
         self.contract_manager.update_contract_table()
