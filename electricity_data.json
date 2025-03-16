@@ -7,7 +7,7 @@
             "phone": "",
             "email": "",
             "vertragskonto": "35",
-            "z\u00e4hlernummer": "353453",
+            "zählernummer": "353453",
             "start_date": "15.03.2025"
         }
     ],
@@ -20,8 +20,8 @@
             "arbeitspreis_nt": "0",
             "grundpreis": "148.55",
             "grundpreis_id": "T01",
-            "z\u00e4hlerkosten": "16.81",
-            "z\u00e4hlerkosten_id": "T01",
+            "zählerkosten": "16.81",
+            "zählerkosten_id": "T01",
             "zusatzkosten": "0",
             "zusatzkosten_id": "T01"
         },
@@ -33,8 +33,8 @@
             "arbeitspreis_nt": "0",
             "grundpreis": "148.55",
             "grundpreis_id": "T02",
-            "z\u00e4hlerkosten": "16.81",
-            "z\u00e4hlerkosten_id": "T02",
+            "zählerkosten": "16.81",
+            "zählerkosten_id": "T02",
             "zusatzkosten": "0",
             "zusatzkosten_id": "T02"
         },
@@ -46,8 +46,8 @@
             "arbeitspreis_nt": "0",
             "grundpreis": "160.55",
             "grundpreis_id": "T03",
-            "z\u00e4hlerkosten": "20",
-            "z\u00e4hlerkosten_id": "T03",
+            "zählerkosten": "20",
+            "zählerkosten_id": "T03",
             "zusatzkosten": "0",
             "zusatzkosten_id": "T03"
         }
@@ -56,32 +56,32 @@
         {
             "vertragskonto": "35",
             "ablesungsdatum": "20.09.2024",
-            "z\u00e4hlerstand_ht": "4531",
-            "z\u00e4hlerstand_nt": "0"
+            "zählerstand_ht": "4531",
+            "zählerstand_nt": "0"
         },
         {
             "vertragskonto": "35",
             "ablesungsdatum": "31.12.2024",
-            "z\u00e4hlerstand_ht": "5939",
-            "z\u00e4hlerstand_nt": "0"
+            "zählerstand_ht": "5939",
+            "zählerstand_nt": "0"
         },
         {
             "vertragskonto": "35",
             "ablesungsdatum": "31.01.2025",
-            "z\u00e4hlerstand_ht": "6423",
-            "z\u00e4hlerstand_nt": "0"
+            "zählerstand_ht": "6423",
+            "zählerstand_nt": "0"
         },
         {
             "vertragskonto": "35",
             "ablesungsdatum": "25.02.2025",
-            "z\u00e4hlerstand_ht": "6806",
-            "z\u00e4hlerstand_nt": "0"
+            "zählerstand_ht": "6806",
+            "zählerstand_nt": "0"
         },
         {
             "vertragskonto": "35",
             "ablesungsdatum": "16.03.2025",
-            "z\u00e4hlerstand_ht": "6974",
-            "z\u00e4hlerstand_nt": "0"
+            "zählerstand_ht": "6974",
+            "zählerstand_nt": "0"
         }
     ],
     "zahlungen": [

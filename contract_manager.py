@@ -1,13 +1,17 @@
 from base import tk, ttk, messagebox, DateEntry, os
+from ablesung_manager import AblesungManager
+from tarif_manager import TarifManager
+from rechnungen_manager import RechnungenManager
+from zahlung_manager import ZahlungManager
 
 class ContractManager:
     def __init__(self, app):
         self.root = app.root
         self.app = app
         self.data = app.data
-        self.contract_frame = app.contract_tab  # سازگار با Notebook
-        self.current_contract = None  # برای هماهنگی با بقیه تب‌ها
-        if "contracts" not in self.data:  # مطمئن می‌شیم "contracts" وجود داره
+        self.contract_frame = app.contract_frame  # تغییر به contract_frame
+        self.current_contract = None
+        if "contracts" not in self.data:
             self.data["contracts"] = []
         self.setup_contract_page()
 
@@ -71,7 +75,7 @@ class ContractManager:
         self.context_menu_contract.add_command(label="Bearbeiten", command=self.edit_contract)
         self.context_menu_contract.add_command(label="Löschen", command=self.delete_contract)
         self.contract_table.bind("<Button-3>", self.show_context_menu_contract)
-        self.contract_table.bind("<Double-1>", lambda event: self.open_contract())  # دابل‌کلیک برای باز کردن
+        self.contract_table.bind("<Double-1>", lambda event: self.open_contract())
 
         self.filter_contracts(None)
 
@@ -87,7 +91,7 @@ class ContractManager:
                 return
         self.data["contracts"].append(contract)
         self.contract_table.insert("", "end", values=(contract["vertragskonto"], contract["zählernummer"], contract["company"], contract["contract_type"]))
-        self.app.save_data()  # استفاده از save_data توی MainApp
+        self.app.save_data()
         messagebox.showinfo("Erfolg", "Vertrag wurde gespeichert!")
         self.clear_contract_entries()
         self.filter_contracts(None)
@@ -109,7 +113,7 @@ class ContractManager:
                         self.contract_entries[field].insert(0, contract[field])
                 self.data["contracts"].pop(i)
                 self.contract_table.delete(selected[0])
-                self.app.save_data()  # استفاده از save_data توی MainApp
+                self.app.save_data()
                 messagebox.showinfo("Info", "Vertrag zum Bearbeiten geladen. Ändern و erneut speichern!")
                 break
         self.filter_contracts(None)
@@ -124,7 +128,7 @@ class ContractManager:
             if contract["vertragskonto"] == values[0]:
                 self.data["contracts"].pop(i)
                 self.contract_table.delete(selected[0])
-                self.app.save_data()  # استفاده از save_data توی MainApp
+                self.app.save_data()
                 messagebox.showinfo("Erfolg", "Vertrag wurde gelöscht!")
                 break
         self.filter_contracts(None)
@@ -144,16 +148,40 @@ class ContractManager:
             messagebox.showwarning("Warnung", "Bitte einen Vertrag auswählen!")
             return
         self.current_contract = self.contract_table.item(selected[0], "values")[0]
-        self.app.current_contract = self.current_contract  # به‌روزرسانی current_contract توی MainApp
-        self.app.update_all_tabs()  # آپدیت همه تب‌ها
-        # تابع‌های زیر رو فعلاً با update_all_tabs جایگزین کردم تا بعداً دقیق‌تر تنظیم کنیم
-        # self.contract_details_title.config(text=f"Vertragskontonummer: {self.current_contract}")
-        # self.update_tarifedaten_table()
-        # self.update_ablesung_table()
-        # self.update_verbrauchsmengen_table()
-        # self.update_zahlungen_table()
-        # self.update_energiekosten_table()
-        # self.switch_page(self.contract_details_frame)
+
+        # باز کردن پنجره جدید برای تب‌ها
+        contract_window = tk.Toplevel(self.root)
+        contract_window.title(f"Vertrag: {self.current_contract}")
+        contract_window.geometry("1000x650")
+
+        notebook = ttk.Notebook(contract_window)
+        notebook.pack(fill="both", expand=True)
+
+        # تعریف تب‌ها
+        tarif_tab = ttk.Frame(notebook)
+        ablesung_tab = ttk.Frame(notebook)
+        energiekosten_tab = ttk.Frame(notebook)
+        zahlungen_tab = ttk.Frame(notebook)
+        rechnungen_tab = ttk.Frame(notebook)
+
+        notebook.add(tarif_tab, text="Tarifedaten")
+        notebook.add(ablesung_tab, text="Ablesung")
+        notebook.add(energiekosten_tab, text="Energiekosten")
+        notebook.add(zahlungen_tab, text="Zahlungen")
+        notebook.add(rechnungen_tab, text="Rechnungen")
+
+        # راه‌اندازی تب‌ها
+        self.tarif_manager = TarifManager(self, tarif_tab)
+        self.ablesung_manager = AblesungManager(self, ablesung_tab)
+        self.energiekosten_manager = AblesungManager(self, energiekosten_tab)  # موقتاً از AblesungManager استفاده می‌کنیم
+        self.zahlung_manager = ZahlungManager(self, zahlungen_tab)
+        self.rechnungen_manager = RechnungenManager(self, rechnungen_tab)
+
+        self.tarif_manager.setup_tarif_tab()
+        self.ablesung_manager.setup_ablesung_tab()
+        self.energiekosten_manager.setup_ablesung_tab()  # موقتاً
+        self.zahlung_manager.setup_zahlung_tab()
+        self.rechnungen_manager.setup_rechnungen_tab()
 
     def clear_contract_entries(self):
         self.contract_type.set("Hausstrom")
