@@ -13,6 +13,13 @@ class ContractManager:
         for widget in self.contract_frame.winfo_children():
             widget.destroy()
 
+        # تنظیم رنگ پس‌زمینه طوسی تیره برای کل صفحه
+        self.contract_frame.configure(style="DarkGray.TFrame")
+
+        # استایل برای پس‌زمینه طوسی تیره
+        style = ttk.Style()
+        style.configure("DarkGray.TFrame", background="#555555")  # طوسی تیره
+
         # فرم ورودی - سمت چپ با فاصله 20 پیکسل
         input_frame = ttk.Frame(self.contract_frame)
         input_frame.pack(side="left", padx=20, pady=10, anchor="nw")
@@ -52,7 +59,6 @@ class ContractManager:
         self.save_button.configure(style="Red.TButton")
 
         # استایل برای دکمه قرمز و bold
-        style = ttk.Style()
         style.configure("Red.TButton", foreground="red", font=("Arial", 10, "bold"))
 
         # فیلترها
@@ -69,8 +75,8 @@ class ContractManager:
         self.filter_vertragstyp.pack(side="left", padx=5)
         self.filter_vertragstyp.bind("<<ComboboxSelected>>", self.apply_filter)
 
-        # جدول قراردادها
-        table_frame = ttk.Frame(self.contract_frame)
+        # جدول قراردادها با حاشیه
+        table_frame = ttk.Frame(self.contract_frame, relief="solid", borderwidth=2)
         table_frame.pack(pady=10, padx=10, fill="both", expand=True)
 
         self.contract_table = ttk.Treeview(table_frame, columns=("Anbieter", "Vertragskonto", "Vertragstyp", "Tel", "Email"), show="headings")
@@ -86,11 +92,11 @@ class ContractManager:
         self.contract_table.column("Email", width=200, anchor="center")
         self.contract_table.pack(fill="both", expand=True)
 
-        # استایل جدول
-        style.configure("Treeview", rowheight=25)
+        # استایل جدول - یکی در میون سفید و طوسی روشن
+        style.configure("Treeview", rowheight=25, background="#555555")  # هماهنگی با پس‌زمینه
         style.configure("Treeview.Heading", font=("Arial", 10, "bold"))
-        self.contract_table.tag_configure("oddrow", background="#f0f0f0")
-        self.contract_table.tag_configure("evenrow", background="#ffffff")
+        self.contract_table.tag_configure("oddrow", background="#d3d3d3")  # طوسی روشن
+        self.contract_table.tag_configure("evenrow", background="#ffffff")  # سفید
 
         self.contract_table.bind("<Double-1>", self.on_double_click)
         self.contract_table.bind("<Button-3>", self.show_context_menu)
