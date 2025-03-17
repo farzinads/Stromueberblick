@@ -13,29 +13,29 @@ class ContractManager:
         for widget in self.contract_frame.winfo_children():
             widget.destroy()
 
-        # فرم ورودی
+        # فرم ورودی - سمت چپ با فاصله 20 پیکسل
         input_frame = ttk.Frame(self.contract_frame)
-        input_frame.pack(pady=10, padx=10)
+        input_frame.pack(side="left", padx=20, pady=10, anchor="nw")
 
-        ttk.Label(input_frame, text="Vertragskontonummer:").grid(row=0, column=0, pady=5, sticky="w")
-        self.contract_entry = ttk.Entry(input_frame)
-        self.contract_entry.grid(row=0, column=1, pady=5, sticky="w")
-
-        ttk.Label(input_frame, text="Anbieter:").grid(row=1, column=0, pady=5, sticky="w")
+        ttk.Label(input_frame, text="Anbieter:").grid(row=0, column=0, pady=5, sticky="w")
         self.anbieter = ttk.Entry(input_frame)
-        self.anbieter.grid(row=1, column=1, pady=5, sticky="w")
+        self.anbieter.grid(row=0, column=1, pady=5, sticky="w")
 
-        ttk.Label(input_frame, text="Adresse:").grid(row=2, column=0, pady=5, sticky="w")
+        ttk.Label(input_frame, text="Adresse:").grid(row=1, column=0, pady=5, sticky="w")
         self.adresse = ttk.Entry(input_frame)
-        self.adresse.grid(row=2, column=1, pady=5, sticky="w")
+        self.adresse.grid(row=1, column=1, pady=5, sticky="w")
 
-        ttk.Label(input_frame, text="Tel.nummer:").grid(row=3, column=0, pady=5, sticky="w")
+        ttk.Label(input_frame, text="Tel.nummer:").grid(row=2, column=0, pady=5, sticky="w")
         self.tel_nummer = ttk.Entry(input_frame)
-        self.tel_nummer.grid(row=3, column=1, pady=5, sticky="w")
+        self.tel_nummer.grid(row=2, column=1, pady=5, sticky="w")
 
-        ttk.Label(input_frame, text="E.Mailadresse:").grid(row=4, column=0, pady=5, sticky="w")
+        ttk.Label(input_frame, text="E.Mailadresse:").grid(row=3, column=0, pady=5, sticky="w")
         self.email = ttk.Entry(input_frame)
-        self.email.grid(row=4, column=1, pady=5, sticky="w")
+        self.email.grid(row=3, column=1, pady=5, sticky="w")
+
+        ttk.Label(input_frame, text="Vertragskontonummer:").grid(row=4, column=0, pady=5, sticky="w")
+        self.contract_entry = ttk.Entry(input_frame)
+        self.contract_entry.grid(row=4, column=1, pady=5, sticky="w")
 
         ttk.Label(input_frame, text="Vertragstyp:").grid(row=5, column=0, pady=5, sticky="w")
         self.vertragstyp = ttk.Combobox(input_frame, values=["Privat", "Gewerbe"])
@@ -46,30 +46,45 @@ class ContractManager:
         self.vertragsbeginn = DateEntry(input_frame, date_pattern="dd.mm.yyyy")
         self.vertragsbeginn.grid(row=6, column=1, pady=5, sticky="w")
 
-        ttk.Button(input_frame, text="Speichern", command=self.add_contract).grid(row=7, column=0, columnspan=2, pady=10)
+        # دکمه Speichern با فونت bold و قرمز
+        self.save_button = ttk.Button(input_frame, text="Speichern", command=self.add_contract)
+        self.save_button.grid(row=7, column=1, pady=5, sticky="w")
+        self.save_button.configure(style="Red.TButton")
+
+        # استایل برای دکمه قرمز و bold
+        style = ttk.Style()
+        style.configure("Red.TButton", foreground="red", font=("Arial", 10, "bold"))
 
         # جدول قراردادها
         table_frame = ttk.Frame(self.contract_frame)
         table_frame.pack(pady=10, padx=10, fill="both", expand=True)
 
-        self.contract_table = ttk.Treeview(table_frame, columns=("Vertragskonto", "Anbieter", "Adresse", "Tel", "Email", "Vertragstyp", "Beginn"), show="headings")
-        self.contract_table.heading("Vertragskonto", text="Vertragskontonummer")
+        self.contract_table = ttk.Treeview(table_frame, columns=("Anbieter", "Vertragskonto", "Vertragstyp", "Tel", "Email"), show="headings")
         self.contract_table.heading("Anbieter", text="Anbieter")
-        self.contract_table.heading("Adresse", text="Adresse")
+        self.contract_table.heading("Vertragskonto", text="Vertragskontonummer")
+        self.contract_table.heading("Vertragstyp", text="Vertragstyp")
         self.contract_table.heading("Tel", text="Tel.nummer")
         self.contract_table.heading("Email", text="E.Mailadresse")
-        self.contract_table.heading("Vertragstyp", text="Vertragstyp")
-        self.contract_table.heading("Beginn", text="Vertragsbeginn")
-        self.contract_table.column("Vertragskonto", width=120, anchor="center")
         self.contract_table.column("Anbieter", width=150, anchor="center")
-        self.contract_table.column("Adresse", width=200, anchor="center")
+        self.contract_table.column("Vertragskonto", width=120, anchor="center")
+        self.contract_table.column("Vertragstyp", width=100, anchor="center")
         self.contract_table.column("Tel", width=100, anchor="center")
         self.contract_table.column("Email", width=200, anchor="center")
-        self.contract_table.column("Vertragstyp", width=100, anchor="center")
-        self.contract_table.column("Beginn", width=100, anchor="center")
         self.contract_table.pack(fill="both", expand=True)
 
+        # استایل جدول (شبیه Pandas)
+        style.configure("Treeview", rowheight=25)
+        style.configure("Treeview.Heading", font=("Arial", 10, "bold"))
+        self.contract_table.tag_configure("oddrow", background="#f0f0f0")
+        self.contract_table.tag_configure("evenrow", background="#ffffff")
+
         self.contract_table.bind("<Double-1>", self.on_double_click)
+        self.contract_table.bind("<Button-3>", self.show_context_menu)  # کلیک راست
+
+        # منوی کلیک راست
+        self.context_menu = tk.Menu(self.root, tearoff=0)
+        self.context_menu.add_command(label="Bearbeiten", command=self.edit_contract)
+        self.context_menu.add_command(label="Löschen", command=self.delete_contract)
 
         self.update_contract_table()
 
@@ -110,22 +125,68 @@ class ContractManager:
 
     def update_contract_table(self):
         self.contract_table.delete(*self.contract_table.get_children())
-        for contract in self.data["contracts"]:
-            # استفاده از .get() برای جلوگیری از KeyError
+        for i, contract in enumerate(self.data["contracts"]):
+            tag = "evenrow" if i % 2 == 0 else "oddrow"  # رنگ‌بندی متناوب
             self.contract_table.insert("", "end", values=(
-                contract["vertragskonto"],
                 contract.get("anbieter", ""),
-                contract.get("adresse", ""),
-                contract.get("tel_nummer", ""),
-                contract.get("email", ""),
+                contract["vertragskonto"],
                 contract.get("vertragstyp", ""),
-                contract.get("vertragsbeginn", "")
-            ))
+                contract.get("tel_nummer", ""),
+                contract.get("email", "")
+            ), tags=(tag,))
 
     def on_double_click(self, event):
         item = self.contract_table.selection()
         if item:
-            vertragskonto = self.contract_table.item(item, "values")[0]
+            vertragskonto = self.contract_table.item(item, "values")[1]  # ستون Vertragskonto
             self.app.current_contract = vertragskonto
             self.current_contract = vertragskonto
             self.app.show_tabs()
+
+    def show_context_menu(self, event):
+        item = self.contract_table.identify_row(event.y)
+        if item:
+            self.contract_table.selection_set(item)
+            self.context_menu.post(event.x_root, event.y_root)
+
+    def edit_contract(self):
+        item = self.contract_table.selection()
+        if not item:
+            return
+        vertragskonto = self.contract_table.item(item, "values")[1]  # ستون Vertragskonto
+        for contract in self.data["contracts"]:
+            if contract["vertragskonto"] == vertragskonto:
+                self.contract_entry.delete(0, tk.END)
+                self.contract_entry.insert(0, contract["vertragskonto"])
+                self.anbieter.delete(0, tk.END)
+                self.anbieter.insert(0, contract.get("anbieter", ""))
+                self.adresse.delete(0, tk.END)
+                self.adresse.insert(0, contract.get("adresse", ""))
+                self.tel_nummer.delete(0, tk.END)
+                self.tel_nummer.insert(0, contract.get("tel_nummer", ""))
+                self.email.delete(0, tk.END)
+                self.email.insert(0, contract.get("email", ""))
+                self.vertragstyp.set(contract.get("vertragstyp", "Privat"))
+                self.vertragsbeginn.set_date(contract.get("vertragsbeginn", "01.01.2025"))
+                self.data["contracts"].remove(contract)  # حذف موقت برای ویرایش
+                self.update_contract_table()
+                self.save_button.configure(text="Aktualisieren", command=self.update_contract)
+                break
+
+    def update_contract(self):
+        self.add_contract()  # ذخیره با اطلاعات جدید
+        self.save_button.configure(text="Speichern", command=self.add_contract)
+
+    def delete_contract(self):
+        item = self.contract_table.selection()
+        if not item:
+            return
+        vertragskonto = self.contract_table.item(item, "values")[1]
+        if messagebox.askyesno("Bestätigung", f"Möchten Sie den Vertrag {vertragskonto} löschen?"):
+            for i, contract in enumerate(self.data["contracts"]):
+                if contract["vertragskonto"] == vertragskonto:
+                    del self.data["contracts"][i]
+                    self.app.save_data()
+                    self.update_contract_table()
+                    messagebox.showinfo("Erfolg", f"Vertrag {vertragskonto} wurde gelöscht!")
+                    break
