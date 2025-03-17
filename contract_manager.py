@@ -13,12 +13,9 @@ class ContractManager:
         for widget in self.contract_frame.winfo_children():
             widget.destroy()
 
-        # تنظیم رنگ پس‌زمینه طوسی تیره برای کل صفحه
         self.contract_frame.configure(style="DarkGray.TFrame")
-
-        # استایل برای پس‌زمینه طوسی تیره
         style = ttk.Style()
-        style.configure("DarkGray.TFrame", background="#555555")  # طوسی تیره
+        style.configure("DarkGray.TFrame", background="#555555")
 
         # فرم ورودی - سمت چپ با فاصله 20 پیکسل
         input_frame = ttk.Frame(self.contract_frame)
@@ -44,21 +41,23 @@ class ContractManager:
         self.contract_entry = ttk.Entry(input_frame)
         self.contract_entry.grid(row=4, column=1, pady=5, sticky="w")
 
-        ttk.Label(input_frame, text="Vertragstyp:").grid(row=5, column=0, pady=5, sticky="w")
-        self.vertragstyp = ttk.Combobox(input_frame, values=["Privat", "Gewerbe"])
-        self.vertragstyp.grid(row=5, column=1, pady=5, sticky="w")
-        self.vertragstyp.set("Privat")
+        ttk.Label(input_frame, text="Zählernummer:").grid(row=5, column=0, pady=5, sticky="w")
+        self.zählernummer = ttk.Entry(input_frame)
+        self.zählernummer.grid(row=5, column=1, pady=5, sticky="w")
 
-        ttk.Label(input_frame, text="Vertragsbeginn:").grid(row=6, column=0, pady=5, sticky="w")
+        ttk.Label(input_frame, text="Vertragstyp:").grid(row=6, column=0, pady=5, sticky="w")
+        self.vertragstyp = ttk.Combobox(input_frame, values=["Hausstrom", "Wärmpumpe", "Wasser", "Heizung"])
+        self.vertragstyp.grid(row=6, column=1, pady=5, sticky="w")
+        self.vertragstyp.set("Hausstrom")
+
+        ttk.Label(input_frame, text="Vertragsbeginn:").grid(row=7, column=0, pady=5, sticky="w")
         self.vertragsbeginn = DateEntry(input_frame, date_pattern="dd.mm.yyyy")
-        self.vertragsbeginn.grid(row=6, column=1, pady=5, sticky="w")
+        self.vertragsbeginn.grid(row=7, column=1, pady=5, sticky="w")
 
-        # دکمه Speichern با فونت bold و قرمز
         self.save_button = ttk.Button(input_frame, text="Speichern", command=self.add_contract)
-        self.save_button.grid(row=7, column=1, pady=5, sticky="w")
+        self.save_button.grid(row=8, column=1, pady=5, sticky="w")
         self.save_button.configure(style="Red.TButton")
 
-        # استایل برای دکمه قرمز و bold
         style.configure("Red.TButton", foreground="red", font=("Arial", 10, "bold"))
 
         # فیلترها
@@ -71,7 +70,7 @@ class ContractManager:
         self.filter_anbieter.bind("<KeyRelease>", self.apply_filter)
 
         ttk.Label(filter_frame, text="Filter Vertragstyp:").pack(side="left", padx=5)
-        self.filter_vertragstyp = ttk.Combobox(filter_frame, values=["", "Privat", "Gewerbe"])
+        self.filter_vertragstyp = ttk.Combobox(filter_frame, values=["", "Hausstrom", "Wärmpumpe", "Wasser", "Heizung"])
         self.filter_vertragstyp.pack(side="left", padx=5)
         self.filter_vertragstyp.bind("<<ComboboxSelected>>", self.apply_filter)
 
@@ -92,16 +91,14 @@ class ContractManager:
         self.contract_table.column("Email", width=200, anchor="center")
         self.contract_table.pack(fill="both", expand=True)
 
-        # استایل جدول - یکی در میون سفید و طوسی روشن
-        style.configure("Treeview", rowheight=25, background="#555555")  # هماهنگی با پس‌زمینه
+        style.configure("Treeview", rowheight=25, background="#555555")
         style.configure("Treeview.Heading", font=("Arial", 10, "bold"))
-        self.contract_table.tag_configure("oddrow", background="#d3d3d3")  # طوسی روشن
-        self.contract_table.tag_configure("evenrow", background="#ffffff")  # سفید
+        self.contract_table.tag_configure("oddrow", background="#d3d3d3")
+        self.contract_table.tag_configure("evenrow", background="#ffffff")
 
         self.contract_table.bind("<Double-1>", self.on_double_click)
         self.contract_table.bind("<Button-3>", self.show_context_menu)
 
-        # منوی کلیک راست
         self.context_menu = tk.Menu(self.root, tearoff=0)
         self.context_menu.add_command(label="Bearbeiten", command=self.edit_contract)
         self.context_menu.add_command(label="Löschen", command=self.delete_contract)
@@ -118,6 +115,7 @@ class ContractManager:
             return
         contract = {
             "vertragskonto": vertragskonto,
+            "zählernummer": self.zählernummer.get().strip(),
             "anbieter": self.anbieter.get().strip(),
             "adresse": self.adresse.get().strip(),
             "tel_nummer": self.tel_nummer.get().strip(),
@@ -136,11 +134,12 @@ class ContractManager:
 
     def clear_entries(self):
         self.contract_entry.delete(0, tk.END)
+        self.zählernummer.delete(0, tk.END)
         self.anbieter.delete(0, tk.END)
         self.adresse.delete(0, tk.END)
         self.tel_nummer.delete(0, tk.END)
         self.email.delete(0, tk.END)
-        self.vertragstyp.set("Privat")
+        self.vertragstyp.set("Hausstrom")
         self.vertragsbeginn.set_date("01.01.2025")
 
     def update_contract_table(self):
@@ -166,7 +165,7 @@ class ContractManager:
     def on_double_click(self, event):
         item = self.contract_table.selection()
         if item:
-            vertragskonto = self.contract_table.item(item, "values")[1]  # ستون Vertragskonto
+            vertragskonto = self.contract_table.item(item, "values")[1]
             self.app.current_contract = vertragskonto
             self.current_contract = vertragskonto
             self.app.show_tabs()
@@ -186,6 +185,8 @@ class ContractManager:
             if contract["vertragskonto"] == vertragskonto:
                 self.contract_entry.delete(0, tk.END)
                 self.contract_entry.insert(0, contract["vertragskonto"])
+                self.zählernummer.delete(0, tk.END)
+                self.zählernummer.insert(0, contract.get("zählernummer", ""))
                 self.anbieter.delete(0, tk.END)
                 self.anbieter.insert(0, contract.get("anbieter", ""))
                 self.adresse.delete(0, tk.END)
@@ -194,7 +195,7 @@ class ContractManager:
                 self.tel_nummer.insert(0, contract.get("tel_nummer", ""))
                 self.email.delete(0, tk.END)
                 self.email.insert(0, contract.get("email", ""))
-                self.vertragstyp.set(contract.get("vertragstyp", "Privat"))
+                self.vertragstyp.set(contract.get("vertragstyp", "Hausstrom"))
                 self.vertragsbeginn.set_date(contract.get("vertragsbeginn", "01.01.2025"))
                 self.data["contracts"].remove(contract)
                 self.update_contract_table()

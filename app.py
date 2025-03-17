@@ -25,15 +25,17 @@ class StromÜberblick:
         info_frame = ttk.Frame(self.tabs_frame)
         info_frame.pack(fill="x", padx=10, pady=5)
         
-        self.contract_label = ttk.Label(info_frame, text="Vertragskontonummer: ")
+        style = ttk.Style()
+        style.configure("Green.TLabel", foreground="#006400", font=("Arial", 12))  # سبز تیره و فونت 12
+        
+        self.contract_label = ttk.Label(info_frame, text="Vertragskontonummer: ", style="Green.TLabel")
         self.contract_label.pack(side="left")
-        self.vertragstyp_label = ttk.Label(info_frame, text="Vertragstyp: ")
+        self.vertragstyp_label = ttk.Label(info_frame, text="Vertragstyp: ", style="Green.TLabel")
         self.vertragstyp_label.pack(side="left", padx=10)
 
-        # دکمه Zurück
         ttk.Button(info_frame, text="Zurück", command=self.show_contracts).pack(side="right")
 
-        # تب‌ها
+        # تب‌ها با استایل
         self.notebook = ttk.Notebook(self.tabs_frame)
         self.tarifedaten_tab = ttk.Frame(self.notebook)
         self.ablesung_tab = ttk.Frame(self.notebook)
@@ -44,7 +46,11 @@ class StromÜberblick:
         self.offene_beträge_tab = ttk.Frame(self.notebook)
         self.diagramm_tab = ttk.Frame(self.notebook)
 
-        self.notebook.add(self.tarifedaten_tab, text="Tarifdaten")
+        style.configure("TNotebook", tabmargins=[5, 0, 5, 0])  # فاصله بین تب‌ها 5 پیکسل
+        style.configure("TNotebook.Tab", foreground="#8B0000")  # قرمز تیره برای تب غیرفعال
+        style.map("TNotebook.Tab", foreground=[("selected", "#0000FF")])  # آبی برای تب فعال
+
+        self.notebook.add(self.tarifedaten_tab, text="Tarifdaten", padding=[10, 0, 10, 0])  # فاصله 10 پیکسل برای Tarifdaten
         self.notebook.add(self.ablesung_tab, text="Ablesung")
         self.notebook.add(self.energiekosten_tab, text="Energiekosten")
         self.notebook.add(self.zahlungen_tab, text="Zahlungen")
@@ -63,7 +69,6 @@ class StromÜberblick:
     def show_tabs(self):
         self.contract_frame.pack_forget()
         self.tabs_frame.pack(fill="both", expand=True)
-        # به‌روزرسانی اطلاعات قرارداد
         for contract in self.data["contracts"]:
             if contract["vertragskonto"] == self.current_contract:
                 self.contract_label.config(text=f"Vertragskontonummer: {contract['vertragskonto']}")
