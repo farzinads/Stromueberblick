@@ -1,83 +1,3 @@
-<<<<<<< HEAD
-from base import tk, ttk, messagebox, DateEntry, os
-
-class RechnungenManager:
-    def __init__(self, app):
-        self.root = app.root
-        self.app = app
-        self.data = app.data
-        self.current_contract = app.current_contract
-        self.rechnungen_tab = app.rechnungen_tab
-        self.setup_rechnungen_tab()
-
-    def setup_rechnungen_tab(self):
-        rechnungen_frame = ttk.Frame(self.rechnungen_tab)
-        rechnungen_frame.place(x=10, y=10)
-
-        ttk.Label(rechnungen_frame, text="Rechnungsnummer:").grid(row=0, column=0, pady=5, sticky="w")
-        self.rechnungsnummer = ttk.Entry(rechnungen_frame)
-        self.rechnungsnummer.grid(row=0, column=1, pady=5)
-
-        ttk.Label(rechnungen_frame, text="Datum:").grid(row=1, column=0, pady=5, sticky="w")
-        self.datum = DateEntry(rechnungen_frame, date_pattern="dd.mm.yyyy")
-        self.datum.grid(row=1, column=1, pady=5)
-
-        ttk.Label(rechnungen_frame, text="Betrag (€):").grid(row=2, column=0, pady=5, sticky="w")
-        self.betrag = ttk.Entry(rechnungen_frame)
-        self.betrag.grid(row=2, column=1, pady=5)
-
-        ttk.Button(rechnungen_frame, text="Speichern", command=self.save_rechnung).grid(row=3, column=0, columnspan=2, pady=10)
-
-        table_frame = ttk.Frame(self.rechnungen_tab, relief="solid", borderwidth=2)
-        table_frame.place(x=10, y=110, width=960, height=500)
-
-        self.rechnungen_table = ttk.Treeview(table_frame, columns=("Rechnungsnummer", "Datum", "Betrag"), show="headings")
-        self.rechnungen_table.heading("Rechnungsnummer", text="Rechnungsnummer")
-        self.rechnungen_table.heading("Datum", text="Datum")
-        self.rechnungen_table.heading("Betrag", text="Betrag (€)")
-        self.rechnungen_table.column("Rechnungsnummer", width=150, anchor="center")
-        self.rechnungen_table.column("Datum", width=150, anchor="center")
-        self.rechnungen_table.column("Betrag", width=150, anchor="center")
-        self.rechnungen_table.pack(fill="both", expand=True)
-
-        self.update_rechnungen_table()
-
-    def save_rechnung(self):
-        if not self.current_contract:
-            messagebox.showerror("Fehler", "Kein Vertrag ausgewählt!")
-            return
-        rechnungsnummer = self.rechnungsnummer.get()
-        datum = self.datum.get()
-        betrag = self.betrag.get()
-        if not all([rechnungsnummer, datum, betrag]):
-            messagebox.showerror("Fehler", "Rechnungsnummer, Datum und Betrag müssen ausgefüllت sein!")
-            return
-        try:
-            betrag = float(betrag)
-        except ValueError:
-            messagebox.showerror("Fehler", "Betrag muss numerisch sein!")
-            return
-        rechnung = {"vertragskonto": self.current_contract, "rechnungsnummer": rechnungsnummer, "datum": datum, "betrag": betrag}
-        if "rechnungen" not in self.data:
-            self.data["rechnungen"] = []
-        self.data["rechnungen"].append(rechnung)
-        self.app.save_data()
-        messagebox.showinfo("Erfolg", "Rechnung wurde gespeichert!")
-        self.clear_rechnung_entries()
-        self.update_rechnungen_table()
-
-    def update_rechnungen_table(self):
-        self.rechnungen_table.delete(*self.rechnungen_table.get_children())
-        if self.current_contract and "rechnungen" in self.data:
-            for rechnung in self.data["rechnungen"]:
-                if rechnung["vertragskonto"] == self.current_contract:
-                    self.rechnungen_table.insert("", "end", values=(rechnung["rechnungsnummer"], rechnung["datum"], rechnung["betrag"]))
-
-    def clear_rechnung_entries(self):
-        self.rechnungsnummer.delete(0, tk.END)
-        self.datum.delete(0, tk.END)
-        self.betrag.delete(0, tk.END)
-=======
 from base import tk, ttk, messagebox, DateEntry, save_data, PDF_DIR, os
 import shutil
 import subprocess
@@ -86,6 +6,7 @@ from datetime import datetime
 class RechnungenManager:
     def __init__(self, app):
         self.root = app.root
+        self.app = app  # برای سازگاری با ساختار پروژه
         self.data = app.data
         self.current_contract = app.current_contract
         self.rechnungen_tab = app.rechnungen_tab
@@ -95,30 +16,32 @@ class RechnungenManager:
         rechnungen_frame = ttk.Frame(self.rechnungen_tab)
         rechnungen_frame.place(x=10, y=10)
 
-        # فرم ورودی
+        # فرم ورودی با فاصله‌های تنظیم‌شده
         ttk.Label(rechnungen_frame, text="Rechnungsnummer:").grid(row=0, column=0, pady=5, sticky="w")
         self.rechnungsnummer = ttk.Entry(rechnungen_frame)
-        self.rechnungsnummer.grid(row=0, column=1, pady=5)
+        self.rechnungsnummer.grid(row=0, column=1, pady=5, padx=(40, 10))  # 40 از برچسب، 10 از بعدی
 
         ttk.Label(rechnungen_frame, text="Datum:").grid(row=1, column=0, pady=5, sticky="w")
         self.rechnungsdatum = DateEntry(rechnungen_frame, date_pattern="dd.mm.yyyy")
-        self.rechnungsdatum.grid(row=1, column=1, pady=5)
+        self.rechnungsdatum.grid(row=1, column=1, pady=5, padx=(40, 10))
 
         ttk.Label(rechnungen_frame, text="Betrag (€):").grid(row=2, column=0, pady=5, sticky="w")
         self.rechnung_betrag = ttk.Entry(rechnungen_frame)
-        self.rechnung_betrag.grid(row=2, column=1, pady=5)
+        self.rechnung_betrag.grid(row=2, column=1, pady=5, padx=(40, 10))
 
-        ttk.Button(rechnungen_frame, text="PDF hochladen", command=self.upload_pdf).grid(row=3, column=0, pady=5)
+        ttk.Label(rechnungen_frame, text="PDF hochladen:").grid(row=3, column=0, pady=5, sticky="w")
+        ttk.Button(rechnungen_frame, text="PDF auswählen", command=self.upload_pdf).grid(row=3, column=1, pady=5, padx=(40, 10))
         self.pdf_label = ttk.Label(rechnungen_frame, text="Kein PDF ausgewählt")
-        self.pdf_label.grid(row=3, column=1, pady=5, sticky="w")
+        self.pdf_label.grid(row=3, column=2, pady=5, sticky="w")
 
-        ttk.Button(rechnungen_frame, text="Speichern", command=self.save_rechnung).grid(row=4, column=0, columnspan=2, pady=10)
+        # دکمه Speichern زیر آخرین فیلد
+        ttk.Button(rechnungen_frame, text="Speichern", command=self.save_rechnung).grid(row=4, column=0, columnspan=3, pady=10)
 
-        # جدول
-        table_frame_rechnungen = ttk.Frame(self.rechnungen_tab, relief="solid", borderwidth=2)
-        table_frame_rechnungen.place(x=10, y=165, width=960, height=485)
+        # جدول با فاصله 40 پیکسل از دکمه
+        table_frame = ttk.Frame(self.rechnungen_tab, relief="solid", borderwidth=2)
+        table_frame.place(x=10, y=165, width=960, height=485)  # y=165 برای 40 پیکسل فاصله از دکمه
 
-        self.rechnungen_table = ttk.Treeview(table_frame_rechnungen, columns=("Rechnungsnummer", "Datum", "Betrag", "PDF"), show="headings")
+        self.rechnungen_table = ttk.Treeview(table_frame, columns=("Rechnungsnummer", "Datum", "Betrag", "PDF"), show="headings")
         self.rechnungen_table.heading("Rechnungsnummer", text="Rechnungsnummer")
         self.rechnungen_table.heading("Datum", text="Datum")
         self.rechnungen_table.heading("Betrag", text="Betrag (€)")
@@ -128,7 +51,7 @@ class RechnungenManager:
         self.rechnungen_table.column("Betrag", width=150, anchor="center")
         self.rechnungen_table.column("PDF", width=150, anchor="center")
 
-        scrollbar_rechnungen = ttk.Scrollbar(table_frame_rechnungen, orient="vertical", command=self.rechnungen_table.yview)
+        scrollbar_rechnungen = ttk.Scrollbar(table_frame, orient="vertical", command=self.rechnungen_table.yview)
         self.rechnungen_table.configure(yscrollcommand=scrollbar_rechnungen.set)
         scrollbar_rechnungen.pack(side="right", fill="y")
         self.rechnungen_table.pack(fill="both", expand=True)
@@ -179,7 +102,7 @@ class RechnungenManager:
             self.data["rechnungen"] = []
         self.data["rechnungen"].append(rechnung)
         self.data["rechnungen"] = sorted(self.data["rechnungen"], key=lambda x: datetime.strptime(x["datum"], "%d.%m.%Y"))
-        save_data(self.data)
+        self.app.save_data()  # تغییر به app.save_data برای سازگاری
         messagebox.showinfo("Erfolg", "Rechnung wurde gespeichert!")
         self.clear_rechnung_entries()
         self.update_rechnungen_table()
@@ -217,7 +140,7 @@ class RechnungenManager:
                 self.data["rechnungen"].pop(i)
                 self.rechnungen_table.delete(selected[0])
                 self.data["rechnungen"] = sorted(self.data["rechnungen"], key=lambda x: datetime.strptime(x["datum"], "%d.%m.%Y"))
-                save_data(self.data)
+                self.app.save_data()  # تغییر به app.save_data
                 messagebox.showinfo("Info", "Rechnung zum Bearbeiten geladen. Ändern و erneut speichern!")
                 self.update_rechnungen_table()
                 break
@@ -234,7 +157,7 @@ class RechnungenManager:
                     os.remove(item["pdf_path"])
                 self.data["rechnungen"].pop(i)
                 self.rechnungen_table.delete(selected[0])
-                save_data(self.data)
+                self.app.save_data()  # تغییر به app.save_data
                 messagebox.showinfo("Erfolg", "Rechnung wurde gelöscht!")
                 break
         self.update_rechnungen_table()
@@ -255,4 +178,3 @@ class RechnungenManager:
         if row:
             self.rechnungen_table.selection_set(row)
             self.context_menu_rechnungen.post(event.x_root, event.y_root)
->>>>>>> 1b51e8c33d9a0d94737b7d340c7f90a601d0c100

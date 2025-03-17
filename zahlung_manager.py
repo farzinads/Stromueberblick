@@ -1,75 +1,3 @@
-<<<<<<< HEAD
-from base import tk, ttk, messagebox, DateEntry, os
-
-class ZahlungManager:
-    def __init__(self, app):
-        self.root = app.root
-        self.app = app
-        self.data = app.data
-        self.current_contract = app.current_contract
-        self.zahlung_tab = app.zahlungen_tab  # تغییر به zahlungen_tab
-        self.setup_zahlung_tab()
-
-    def setup_zahlung_tab(self):
-        zahlung_frame = ttk.Frame(self.zahlung_tab)
-        zahlung_frame.place(x=10, y=10)
-
-        ttk.Label(zahlung_frame, text="Datum:").grid(row=0, column=0, pady=5, sticky="w")
-        self.datum = DateEntry(zahlung_frame, date_pattern="dd.mm.yyyy")
-        self.datum.grid(row=0, column=1, pady=5)
-
-        ttk.Label(zahlung_frame, text="Betrag (€):").grid(row=1, column=0, pady=5, sticky="w")
-        self.betrag = ttk.Entry(zahlung_frame)
-        self.betrag.grid(row=1, column=1, pady=5)
-
-        ttk.Button(zahlung_frame, text="Speichern", command=self.save_zahlung).grid(row=2, column=0, columnspan=2, pady=10)
-
-        table_frame = ttk.Frame(self.zahlung_tab, relief="solid", borderwidth=2)
-        table_frame.place(x=10, y=110, width=960, height=540)
-
-        self.zahlung_table = ttk.Treeview(table_frame, columns=("Datum", "Betrag"), show="headings")
-        self.zahlung_table.heading("Datum", text="Datum")
-        self.zahlung_table.heading("Betrag", text="Betrag (€)")
-        self.zahlung_table.column("Datum", width=150, anchor="center")
-        self.zahlung_table.column("Betrag", width=150, anchor="center")
-        self.zahlung_table.pack(fill="both", expand=True)
-
-        self.update_zahlung_table()
-
-    def save_zahlung(self):
-        if not self.current_contract:
-            messagebox.showerror("Fehler", "Kein Vertrag ausgewählt!")
-            return
-        datum = self.datum.get()
-        betrag = self.betrag.get()
-        if not all([datum, betrag]):
-            messagebox.showerror("Fehler", "Datum und Betrag müssen ausgefüllت sein!")
-            return
-        try:
-            betrag = float(betrag)
-        except ValueError:
-            messagebox.showerror("Fehler", "Betrag muss numerisch sein!")
-            return
-        zahlung = {"vertragskonto": self.current_contract, "datum": datum, "betrag": betrag}
-        if "zahlungen" not in self.data:
-            self.data["zahlungen"] = []
-        self.data["zahlungen"].append(zahlung)
-        self.app.save_data()
-        messagebox.showinfo("Erfolg", "Zahlung wurde gespeichert!")
-        self.clear_zahlung_entries()
-        self.update_zahlung_table()
-
-    def update_zahlung_table(self):
-        self.zahlung_table.delete(*self.zahlung_table.get_children())
-        if self.current_contract and "zahlungen" in self.data:
-            for zahlung in self.data["zahlungen"]:
-                if zahlung["vertragskonto"] == self.current_contract:
-                    self.zahlung_table.insert("", "end", values=(zahlung["datum"], zahlung["betrag"]))
-
-    def clear_zahlung_entries(self):
-        self.datum.delete(0, tk.END)
-        self.betrag.delete(0, tk.END)
-=======
 from base import tk, ttk, messagebox, DateEntry, save_data, PDF_DIR, os
 import shutil
 import subprocess
@@ -82,6 +10,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 class ZahlungManager:
     def __init__(self, app):
         self.root = app.root
+        self.app = app  # برای سازگاری با ساختار پروژه
         self.data = app.data
         self.current_contract = app.current_contract
         self.zahlungen_tab = app.zahlungen_tab
@@ -93,22 +22,26 @@ class ZahlungManager:
         zahlungen_frame = ttk.Frame(self.zahlungen_tab)
         zahlungen_frame.place(x=10, y=10)
 
+        # فرم ورودی با فاصله‌های تنظیم‌شده
         ttk.Label(zahlungen_frame, text="Zahlungsdatum:").grid(row=0, column=0, pady=5, sticky="w")
         self.zahlungsdatum = DateEntry(zahlungen_frame, date_pattern="dd.mm.yyyy")
-        self.zahlungsdatum.grid(row=0, column=1, pady=5)
+        self.zahlungsdatum.grid(row=0, column=1, pady=5, padx=(40, 10))  # 40 از برچسب، 10 از بعدی
 
         ttk.Label(zahlungen_frame, text="Betrag (€):").grid(row=1, column=0, pady=5, sticky="w")
         self.betrag = ttk.Entry(zahlungen_frame)
-        self.betrag.grid(row=1, column=1, pady=5)
+        self.betrag.grid(row=1, column=1, pady=5, padx=(40, 10))
 
-        ttk.Button(zahlungen_frame, text="PDF hochladen", command=self.upload_pdf).grid(row=2, column=0, pady=5)
+        ttk.Label(zahlungen_frame, text="PDF hochladen:").grid(row=2, column=0, pady=5, sticky="w")
+        ttk.Button(zahlungen_frame, text="PDF auswählen", command=self.upload_pdf).grid(row=2, column=1, pady=5, padx=(40, 10))
         self.pdf_label = ttk.Label(zahlungen_frame, text="Kein PDF ausgewählt")
-        self.pdf_label.grid(row=2, column=1, pady=5, sticky="w")
+        self.pdf_label.grid(row=2, column=2, pady=5, sticky="w")
 
-        ttk.Button(zahlungen_frame, text="Speichern", command=self.save_zahlung).grid(row=3, column=0, columnspan=2, pady=10)
+        # دکمه Speichern زیر آخرین فیلد
+        ttk.Button(zahlungen_frame, text="Speichern", command=self.save_zahlung).grid(row=3, column=0, columnspan=3, pady=10)
 
+        # جدول با فاصله 40 پیکسل از دکمه
         table_frame_zahlungen = ttk.Frame(self.zahlungen_tab, relief="solid", borderwidth=2)
-        table_frame_zahlungen.place(x=10, y=145, width=960, height=505)
+        table_frame_zahlungen.place(x=10, y=145, width=960, height=505)  # y=145 برای 40 پیکسل فاصله
 
         self.zahlungen_table = ttk.Treeview(table_frame_zahlungen, columns=("Zahlungsdatum", "Betrag", "PDF"), show="headings")
         self.zahlungen_table.heading("Zahlungsdatum", text="Zahlungsdatum")
@@ -123,6 +56,7 @@ class ZahlungManager:
         scrollbar_zahlungen.pack(side="right", fill="y")
         self.zahlungen_table.pack(fill="both", expand=True)
 
+        # منوی راست‌کلیک
         self.context_menu_zahlungen = tk.Menu(self.root, tearoff=0)
         self.context_menu_zahlungen.add_command(label="Bearbeiten", command=self.edit_zahlung)
         self.context_menu_zahlungen.add_command(label="Löschen", command=self.delete_zahlung)
@@ -190,7 +124,7 @@ class ZahlungManager:
             return
         pdf_path = None
         if hasattr(self, 'current_pdf_path') and self.current_pdf_path:
-            pdf_filename = f"{self.current_contract}_{zahlungsdatum.replace('.', '_')}_{os.path.basename(self.current_pdf_path)}"
+            pdf_filename = f"Zahlung_{self.current_contract}_{zahlungsdatum.replace('.', '_')}_{os.path.basename(self.current_pdf_path)}"
             pdf_path = os.path.join(PDF_DIR, pdf_filename)
             shutil.copy(self.current_pdf_path, pdf_path)
         zahlung = {
@@ -199,16 +133,18 @@ class ZahlungManager:
             "betrag": betrag,
             "pdf_path": pdf_path if pdf_path else "-"
         }
+        if "zahlungen" not in self.data:
+            self.data["zahlungen"] = []
         self.data["zahlungen"].append(zahlung)
         self.data["zahlungen"] = sorted(self.data["zahlungen"], key=lambda x: datetime.strptime(x["zahlungsdatum"], "%d.%m.%Y"))
-        save_data(self.data)
+        self.app.save_data()  # تغییر به app.save_data برای سازگاری
         messagebox.showinfo("Erfolg", "Zahlung wurde gespeichert!")
         self.clear_zahlung_entries()
         self.update_zahlungen_table()
 
     def update_zahlungen_table(self):
         self.zahlungen_table.delete(*self.zahlungen_table.get_children())
-        if self.current_contract:
+        if self.current_contract and "zahlungen" in self.data:
             for item in self.data["zahlungen"]:
                 if item["vertragskonto"] == self.current_contract:
                     pdf_button = "Anzeigen" if item["pdf_path"] != "-" else "-"
@@ -236,7 +172,7 @@ class ZahlungManager:
                 self.data["zahlungen"].pop(i)
                 self.zahlungen_table.delete(selected[0])
                 self.data["zahlungen"] = sorted(self.data["zahlungen"], key=lambda x: datetime.strptime(x["zahlungsdatum"], "%d.%m.%Y"))
-                save_data(self.data)
+                self.app.save_data()
                 messagebox.showinfo("Info", "Zahlung zum Bearbeiten geladen. Ändern و erneut speichern!")
                 self.update_zahlungen_table()
                 break
@@ -253,9 +189,10 @@ class ZahlungManager:
                     os.remove(item["pdf_path"])
                 self.data["zahlungen"].pop(i)
                 self.zahlungen_table.delete(selected[0])
-                save_data(self.data)
+                self.app.save_data()
                 messagebox.showinfo("Erfolg", "Zahlung wurde gelöscht!")
                 break
+        self.update_zahlungen_table()
 
     def open_pdf_from_table(self, event):
         item = self.zahlungen_table.identify_row(event.y)
@@ -274,12 +211,12 @@ class ZahlungManager:
             return
 
         tarif_periods = sorted(
-            [item for item in self.data["tarifedaten"] if item["vertragskonto"] == self.current_contract],
+            [item for item in self.data.get("tarife", []) if item["vertragskonto"] == self.current_contract],  # "tarife" به‌جای "tarifedaten" برای سازگاری
             key=lambda x: datetime.strptime(x["von"], "%d.%m.%Y")
         )
         if not tarif_periods:
             ablesung_list = sorted(
-                [item for item in self.data["ablesung"] if item["vertragskonto"] == self.current_contract],
+                [item for item in self.data.get("ablesungen", []) if item["vertragskonto"] == self.current_contract],  # "ablesungen" برای سازگاری
                 key=lambda x: datetime.strptime(x["ablesungsdatum"], "%d.%m.%Y")
             )
             if ablesung_list:
@@ -302,7 +239,7 @@ class ZahlungManager:
                 return
 
         ablesung_list = sorted(
-            [item for item in self.data["ablesung"] if item["vertragskonto"] == self.current_contract],
+            [item for item in self.data.get("ablesungen", []) if item["vertragskonto"] == self.current_contract],
             key=lambda x: datetime.strptime(x["ablesungsdatum"], "%d.%m.%Y")
         )
 
@@ -454,4 +391,3 @@ class ZahlungManager:
         if row:
             self.zahlungen_table.selection_set(row)
             self.context_menu_zahlungen.post(event.x_root, event.y_root)
->>>>>>> 1b51e8c33d9a0d94737b7d340c7f90a601d0c100
