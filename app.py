@@ -26,16 +26,16 @@ class StromÜberblick:
         info_frame.pack(fill="x", padx=10, pady=5)
         
         style = ttk.Style()
-        style.configure("Green.TLabel", foreground="#006400", font=("Arial", 12))  # سبز تیره و فونت 12
+        style.configure("Green.TLabel", foreground="#006400", font=("Arial", 12))
         
         self.contract_label = ttk.Label(info_frame, text="Vertragskontonummer: ", style="Green.TLabel")
         self.contract_label.pack(side="left")
         self.vertragstyp_label = ttk.Label(info_frame, text="Vertragstyp: ", style="Green.TLabel")
-        self.vertragstyp_label.pack(side="left", padx=10)
+        self.vertragstyp_label.pack(side="left", padx=50)  # فاصله 50 پیکسل
 
         ttk.Button(info_frame, text="Zurück", command=self.show_contracts).pack(side="right")
 
-        # تب‌ها با استایل
+        # تب‌ها با استایل برجسته
         self.notebook = ttk.Notebook(self.tabs_frame)
         self.tarifedaten_tab = ttk.Frame(self.notebook)
         self.ablesung_tab = ttk.Frame(self.notebook)
@@ -46,11 +46,11 @@ class StromÜberblick:
         self.offene_beträge_tab = ttk.Frame(self.notebook)
         self.diagramm_tab = ttk.Frame(self.notebook)
 
-        style.configure("TNotebook", tabmargins=[5, 0, 5, 0])  # فاصله بین تب‌ها 5 پیکسل
-        style.configure("TNotebook.Tab", foreground="#8B0000")  # قرمز تیره برای تب غیرفعال
+        style.configure("TNotebook", tabmargins=[15, 0, 15, 0])  # فاصله 15 پیکسل
+        style.configure("TNotebook.Tab", foreground="#8B0000", relief="raised", padding=[5, 2])  # قرمز تیره و برجسته
         style.map("TNotebook.Tab", foreground=[("selected", "#0000FF")])  # آبی برای تب فعال
 
-        self.notebook.add(self.tarifedaten_tab, text="Tarifdaten", padding=[10, 0, 10, 0])  # فاصله 10 پیکسل برای Tarifdaten
+        self.notebook.add(self.tarifedaten_tab, text="Tarifdaten")
         self.notebook.add(self.ablesung_tab, text="Ablesung")
         self.notebook.add(self.energiekosten_tab, text="Energiekosten")
         self.notebook.add(self.zahlungen_tab, text="Zahlungen")

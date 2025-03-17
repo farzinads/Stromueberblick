@@ -13,9 +13,10 @@ class ContractManager:
         for widget in self.contract_frame.winfo_children():
             widget.destroy()
 
-        self.contract_frame.configure(style="DarkGray.TFrame")
+        # رنگ پس‌زمینه شیک و ملایم (طوسی روشن با حس حرفه‌ای)
+        self.contract_frame.configure(style="LightGray.TFrame")
         style = ttk.Style()
-        style.configure("DarkGray.TFrame", background="#555555")
+        style.configure("LightGray.TFrame", background="#B0B0B0")  # طوسی روشن و شیک
 
         # فرم ورودی - سمت چپ با فاصله 20 پیکسل
         input_frame = ttk.Frame(self.contract_frame)
@@ -91,7 +92,7 @@ class ContractManager:
         self.contract_table.column("Email", width=200, anchor="center")
         self.contract_table.pack(fill="both", expand=True)
 
-        style.configure("Treeview", rowheight=25, background="#555555")
+        style.configure("Treeview", rowheight=25, background="#B0B0B0")
         style.configure("Treeview.Heading", font=("Arial", 10, "bold"))
         self.contract_table.tag_configure("oddrow", background="#d3d3d3")
         self.contract_table.tag_configure("evenrow", background="#ffffff")
