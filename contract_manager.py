@@ -81,6 +81,7 @@ class ContractManager:
         self.filter_contracts(None)
 
     def setup_tabs_page(self):
+        ttk.Label(self.tabs_frame, text=f"Vertragskontonummer: {self.current_contract}", font=("Arial", 12, "bold")).pack(pady=5)
         self.notebook = ttk.Notebook(self.tabs_frame)
         self.notebook.pack(fill="both", expand=True)
 
@@ -102,7 +103,7 @@ class ContractManager:
 
         self.tarif_manager = TarifManager(self)
         self.ablesung_manager = AblesungManager(self)
-        self.energiekosten_manager = EnergiekostenManager(self)  # جداگانه تعریف می‌کنیم
+        self.energiekosten_manager = EnergiekostenManager(self)
         self.zahlung_manager = ZahlungManager(self)
         self.rechnungen_manager = RechnungenManager(self)
         self.details_manager = DetailsTabs(self)

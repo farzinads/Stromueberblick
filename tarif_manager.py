@@ -7,6 +7,7 @@ class TarifManager:
         self.data = app.data
         self.current_contract = app.current_contract
         self.tarif_tab = app.tarif_tab
+        self.setup_tarif_tab()
 
     def setup_tarif_tab(self):
         tarif_frame = ttk.Frame(self.tarif_tab)
@@ -16,30 +17,38 @@ class TarifManager:
         self.tarifname = ttk.Entry(tarif_frame)
         self.tarifname.grid(row=0, column=1, pady=5)
 
-        ttk.Label(tarif_frame, text="Preis pro kWh (€):").grid(row=1, column=0, pady=5, sticky="w")
-        self.preis_pro_kwh = ttk.Entry(tarif_frame)
-        self.preis_pro_kwh.grid(row=1, column=1, pady=5)
+        ttk.Label(tarif_frame, text="Arbeitspreis HT (€/kWh):").grid(row=1, column=0, pady=5, sticky="w")
+        self.arbeitspreis_ht = ttk.Entry(tarif_frame)
+        self.arbeitspreis_ht.grid(row=1, column=1, pady=5)
 
-        ttk.Label(tarif_frame, text="Startdatum:").grid(row=2, column=0, pady=5, sticky="w")
-        self.startdatum = DateEntry(tarif_frame, date_pattern="dd.mm.yyyy")
-        self.startdatum.grid(row=2, column=1, pady=5)
+        ttk.Label(tarif_frame, text="Arbeitspreis NT (€/kWh):").grid(row=2, column=0, pady=5, sticky="w")
+        self.arbeitspreis_nt = ttk.Entry(tarif_frame)
+        self.arbeitspreis_nt.grid(row=2, column=1, pady=5)
 
-        ttk.Button(tarif_frame, text="Speichern", command=self.save_tarif).grid(row=3, column=0, columnspan=2, pady=10)
+        ttk.Label(tarif_frame, text="Grundpreis (€/Monat):").grid(row=3, column=0, pady=5, sticky="w")
+        self.grundpreis = ttk.Entry(tarif_frame)
+        self.grundpreis.grid(row=3, column=1, pady=5)
 
-        table_frame_tarif = ttk.Frame(self.tarif_tab, relief="solid", borderwidth=2)
-        table_frame_tarif.place(x=10, y=110, width=960, height=540)
+        ttk.Label(tarif_frame, text="Zählerkosten (€/Monat):").grid(row=4, column=0, pady=5, sticky="w")
+        self.zählerkosten = ttk.Entry(tarif_frame)
+        self.zählerkosten.grid(row=4, column=1, pady=5)
 
-        self.tarif_table = ttk.Treeview(table_frame_tarif, columns=("Tarifname", "Preis pro kWh", "Startdatum"), show="headings")
+        ttk.Button(tarif_frame, text="Speichern", command=self.save_tarif).grid(row=5, column=0, columnspan=2, pady=10)
+
+        table_frame = ttk.Frame(self.tarif_tab, relief="solid", borderwidth=2)
+        table_frame.place(x=10, y=150, width=960, height=500)
+
+        self.tarif_table = ttk.Treeview(table_frame, columns=("Tarifname", "Arbeitspreis HT", "Arbeitspreis NT", "Grundpreis", "Zählerkosten"), show="headings")
         self.tarif_table.heading("Tarifname", text="Tarifname")
-        self.tarif_table.heading("Preis pro kWh", text="Preis pro kWh (€)")
-        self.tarif_table.heading("Startdatum", text="Startdatum")
-        self.tarif_table.column("Tarifname", width=200, anchor="center")
-        self.tarif_table.column("Preis pro kWh", width=150, anchor="center")
-        self.tarif_table.column("Startdatum", width=150, anchor="center")
-
-        scrollbar_tarif = ttk.Scrollbar(table_frame_tarif, orient="vertical", command=self.tarif_table.yview)
-        self.tarif_table.configure(yscrollcommand=scrollbar_tarif.set)
-        scrollbar_tarif.pack(side="right", fill="y")
+        self.tarif_table.heading("Arbeitspreis HT", text="Arbeitspreis HT (€/kWh)")
+        self.tarif_table.heading("Arbeitspreis NT", text="Arbeitspreis NT (€/kWh)")
+        self.tarif_table.heading("Grundpreis", text="Grundpreis (€/Monat)")
+        self.tarif_table.heading("Zählerkosten", text="Zählerkosten (€/Monat)")
+        self.tarif_table.column("Tarifname", width=150, anchor="center")
+        self.tarif_table.column("Arbeitspreis HT", width=150, anchor="center")
+        self.tarif_table.column("Arbeitspreis NT", width=150, anchor="center")
+        self.tarif_table.column("Grundpreis", width=150, anchor="center")
+        self.tarif_table.column("Zählerkosten", width=150, anchor="center")
         self.tarif_table.pack(fill="both", expand=True)
 
         self.update_tarif_table()
@@ -49,17 +58,29 @@ class TarifManager:
             messagebox.showerror("Fehler", "Kein Vertrag ausgewählt!")
             return
         tarifname = self.tarifname.get()
-        preis_pro_kwh = self.preis_pro_kwh.get()
-        startdatum = self.startdatum.get()
-        if not all([tarifname, preis_pro_kwh, startdatum]):
-            messagebox.showerror("Fehler", "Tarifname, Preis pro kWh und Startdatum müssen ausgefüllت sein!")
+        arbeitspreis_ht = self.arbeitspreis_ht.get()
+        arbeitspreis_nt = self.arbeitspreis_nt.get()
+        grundpreis = self.grundpreis.get()
+        zählerkosten = self.zählerkosten.get()
+        if not all([tarifname, arbeitspreis_ht, arbeitspreis_nt, grundpreis, zählerkosten]):
+            messagebox.showerror("Fehler", "Alle Felder müssen ausgefüllت sein!")
             return
         try:
-            preis_pro_kwh = float(preis_pro_kwh)
+            arbeitspreis_ht = float(arbeitspreis_ht)
+            arbeitspreis_nt = float(arbeitspreis_nt)
+            grundpreis = float(grundpreis)
+            zählerkosten = float(zählerkosten)
         except ValueError:
-            messagebox.showerror("Fehler", "Preis pro kWh muss numerisch sein!")
+            messagebox.showerror("Fehler", "Numerische Werte erforderlich!")
             return
-        tarif = {"vertragskonto": self.current_contract, "tarifname": tarifname, "preis_pro_kwh": preis_pro_kwh, "startdatum": startdatum}
+        tarif = {
+            "vertragskonto": self.current_contract,
+            "tarifname": tarifname,
+            "arbeitspreis_ht": arbeitspreis_ht,
+            "arbeitspreis_nt": arbeitspreis_nt,
+            "grundpreis": grundpreis,
+            "zählerkosten": zählerkosten
+        }
         if "tarife" not in self.data:
             self.data["tarife"] = []
         self.data["tarife"].append(tarif)
@@ -69,13 +90,22 @@ class TarifManager:
         self.update_tarif_table()
 
     def update_tarif_table(self):
+        self.current_contract = self.app.current_contract
         self.tarif_table.delete(*self.tarif_table.get_children())
         if self.current_contract and "tarife" in self.data:
             for tarif in self.data["tarife"]:
                 if tarif["vertragskonto"] == self.current_contract:
-                    self.tarif_table.insert("", "end", values=(tarif["tarifname"], tarif["preis_pro_kwh"], tarif["startdatum"]))
+                    self.tarif_table.insert("", "end", values=(
+                        tarif["tarifname"],
+                        tarif["arbeitspreis_ht"],
+                        tarif["arbeitspreis_nt"],
+                        tarif["grundpreis"],
+                        tarif["zählerkosten"]
+                    ))
 
     def clear_tarif_entries(self):
         self.tarifname.delete(0, tk.END)
-        self.preis_pro_kwh.delete(0, tk.END)
-        self.startdatum.delete(0, tk.END)
+        self.arbeitspreis_ht.delete(0, tk.END)
+        self.arbeitspreis_nt.delete(0, tk.END)
+        self.grundpreis.delete(0, tk.END)
+        self.zählerkosten.delete(0, tk.END)
