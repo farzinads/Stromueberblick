@@ -111,14 +111,15 @@ class ContractManager:
     def update_contract_table(self):
         self.contract_table.delete(*self.contract_table.get_children())
         for contract in self.data["contracts"]:
+            # استفاده از .get() برای جلوگیری از KeyError
             self.contract_table.insert("", "end", values=(
                 contract["vertragskonto"],
-                contract["anbieter"],
-                contract["adresse"],
-                contract["tel_nummer"],
-                contract["email"],
-                contract["vertragstyp"],
-                contract["vertragsbeginn"]
+                contract.get("anbieter", ""),
+                contract.get("adresse", ""),
+                contract.get("tel_nummer", ""),
+                contract.get("email", ""),
+                contract.get("vertragstyp", ""),
+                contract.get("vertragsbeginn", "")
             ))
 
     def on_double_click(self, event):
