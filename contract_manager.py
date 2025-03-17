@@ -62,5 +62,4 @@ class ContractManager:
             vertragskonto = self.contract_table.item(item, "values")[0]
             self.app.current_contract = vertragskonto
             self.current_contract = vertragskonto
-            messagebox.showinfo("Info", f"Vertrag {vertragskonto} ausgewählt. Tab-Funktion kommt bald!")
-            # بعداً اینجا تب‌ها رو اضافه می‌کنیم
+            self.app.show_tabs()  # سوئیچ به تب‌ها
