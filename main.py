@@ -12,18 +12,14 @@ class MainApp:
         self.data = self.load_data()
         self.current_contract = None
 
-        # فریم برای صفحه "Verträge"
+        # فریم‌ها
         self.contract_frame = ttk.Frame(self.root)
-        self.contract_frame.pack(fill="both", expand=True)
-
-        # فریم برای صفحه تب‌ها
         self.tabs_frame = ttk.Frame(self.root)
-        # این فریم رو فعلاً مخفی می‌کنیم
-
-        # راه‌اندازی ContractManager
+        
+        # ContractManager
         self.contract_manager = ContractManager(self)
-
-        # شروع با صفحه "Verträge"
+        
+        # شروع با صفحه قراردادها
         self.show_contract_page()
 
     def load_data(self):
@@ -38,12 +34,13 @@ class MainApp:
             json.dump(self.data, f, ensure_ascii=False, indent=4)
 
     def show_contract_page(self):
-        self.tabs_frame.pack_forget()  # مخفی کردن تب‌ها
-        self.contract_frame.pack(fill="both", expand=True)  # نمایش "Verträge"
+        self.tabs_frame.pack_forget()
+        self.contract_frame.pack(fill="both", expand=True)
 
     def show_tabs_page(self):
-        self.contract_frame.pack_forget()  # مخفی کردن "Verträge"
-        self.tabs_frame.pack(fill="both", expand=True)  # نمایش تب‌ها
+        self.contract_frame.pack_forget()
+        self.tabs_frame.pack(fill="both", expand=True)
+        self.contract_manager.update_tabs()  # به‌روزرسانی تب‌ها
 
 if __name__ == "__main__":
     root = tk.Tk()

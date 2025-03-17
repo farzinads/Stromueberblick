@@ -6,7 +6,7 @@ class RechnungenManager:
         self.app = app
         self.data = app.data
         self.current_contract = app.current_contract
-        self.rechnungen_tab = app.rechnungen_tab  # تغییر به rechnungen_tab
+        self.rechnungen_tab = app.rechnungen_tab
         self.setup_rechnungen_tab()
 
     def setup_rechnungen_tab(self):
@@ -28,7 +28,7 @@ class RechnungenManager:
         ttk.Button(rechnungen_frame, text="Speichern", command=self.save_rechnung).grid(row=3, column=0, columnspan=2, pady=10)
 
         table_frame = ttk.Frame(self.rechnungen_tab, relief="solid", borderwidth=2)
-        table_frame.place(x=10, y=110, width=960, height=540)
+        table_frame.place(x=10, y=110, width=960, height=500)
 
         self.rechnungen_table = ttk.Treeview(table_frame, columns=("Rechnungsnummer", "Datum", "Betrag"), show="headings")
         self.rechnungen_table.heading("Rechnungsnummer", text="Rechnungsnummer")
