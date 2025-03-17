@@ -84,13 +84,13 @@ class ContractManager:
         self.contract_label = ttk.Label(self.tabs_frame, text=f"Vertragskontonummer: {self.current_contract or 'Kein Vertrag ausgewählt'}", font=("Arial", 12, "bold"))
         self.contract_label.place(x=20, y=10)
 
-        # تنظیم استایل تب‌ها
+        # تنظیم استایل تب‌ها با فونت Bold
         style = ttk.Style()
-        style.configure("Custom.TNotebook.Tab", padding=[5, 2], font=("Arial", 10), foreground="red")  # قرمز برای غیرفعال
+        style.configure("Custom.TNotebook.Tab", padding=[5, 2], font=("Arial", 10, "bold"), foreground="red")  # قرمز و Bold برای غیرفعال
         style.map("Custom.TNotebook.Tab", foreground=[("selected", "blue")])  # آبی برای فعال
 
         self.notebook = ttk.Notebook(self.tabs_frame, style="Custom.TNotebook")
-        self.notebook.pack(fill="both", expand=True, pady=40, padx=15)  # فاصله 15 از چپ، 5 بین تب‌ها با padding
+        self.notebook.pack(fill="both", expand=True, pady=40, padx=15)
 
         self.tarif_tab = ttk.Frame(self.notebook)
         self.ablesung_tab = ttk.Frame(self.notebook)
