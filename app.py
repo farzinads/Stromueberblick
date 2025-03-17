@@ -12,10 +12,10 @@ class StromÜberblick:
         self.data = load_data()
         self.current_contract = None
 
-        self.contract_frame = ttk.Frame(self.root)  # صفحه قراردادها
-        self.tabs_frame = ttk.Frame(self.root)      # صفحه تب‌ها
+        self.contract_frame = ttk.Frame(self.root)
+        self.tabs_frame = ttk.Frame(self.root)
 
-        self.contract_frame.pack(fill="both", expand=True)  # قراردادها موقع شروع نشون داده بشه
+        self.contract_frame.pack(fill="both", expand=True)
 
         self.contract_manager = ContractManager(self)
         self.setup_tabs_frame()
