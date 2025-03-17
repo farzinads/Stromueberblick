@@ -13,50 +13,50 @@ class TarifManager:
         tarif_frame = ttk.Frame(self.tarif_tab)
         tarif_frame.place(x=10, y=10)
 
-        # بازه زمانی با فاصله‌های مشخص
+        # بازه زمانی با فاصله‌های تنظیم‌شده
         ttk.Label(tarif_frame, text="Zeitraum:").grid(row=0, column=0, pady=5, sticky="w")
-        ttk.Label(tarif_frame, text="Von:").grid(row=0, column=1, pady=5, padx=(0, 10), sticky="w")  # 10 پیکسل از ورودی
+        ttk.Label(tarif_frame, text="Von:").grid(row=0, column=1, pady=5, padx=(40, 10), sticky="w")  # 40 از قبلی، 10 از ورودی
         self.von_datum = DateEntry(tarif_frame, date_pattern="dd.mm.yyyy")
         self.von_datum.grid(row=0, column=2, pady=5)
         ttk.Label(tarif_frame, text="Bis:").grid(row=0, column=3, pady=5, padx=(40, 10), sticky="w")  # 40 از Von، 10 از Bis
         self.bis_datum = DateEntry(tarif_frame, date_pattern="dd.mm.yyyy")
         self.bis_datum.grid(row=0, column=4, pady=5)
 
-        # فیلدها با فاصله‌های مشخص
+        # فیلدها با فاصله‌های تنظیم‌شده
         ttk.Label(tarif_frame, text="Arbeitspreis HT (Ct/kWh):").grid(row=1, column=0, pady=5, sticky="w")
         self.arbeitspreis_ht = ttk.Entry(tarif_frame)
-        self.arbeitspreis_ht.grid(row=1, column=1, pady=5, padx=(0, 10))  # 10 پیکسل از برچسب
-        ttk.Label(tarif_frame, text="ID:").grid(row=1, column=2, pady=5, padx=(40, 10), sticky="w")  # 40 از ورودی قبلی
+        self.arbeitspreis_ht.grid(row=1, column=1, pady=5, padx=(40, 10))  # 40 از قبلی، 10 از ID
+        ttk.Label(tarif_frame, text="ID:").grid(row=1, column=2, pady=5, padx=(40, 10), sticky="w")  # 40 از HT
         self.arbeitspreis_ht_id = ttk.Entry(tarif_frame, width=10)
         self.arbeitspreis_ht_id.grid(row=1, column=3, pady=5)
 
         ttk.Label(tarif_frame, text="Arbeitspreis NT (Ct/kWh):").grid(row=2, column=0, pady=5, sticky="w")
         self.arbeitspreis_nt = ttk.Entry(tarif_frame)
-        self.arbeitspreis_nt.grid(row=2, column=1, pady=5, padx=(0, 10))
+        self.arbeitspreis_nt.grid(row=2, column=1, pady=5, padx=(40, 10))
         ttk.Label(tarif_frame, text="ID:").grid(row=2, column=2, pady=5, padx=(40, 10), sticky="w")
         self.arbeitspreis_nt_id = ttk.Entry(tarif_frame, width=10)
         self.arbeitspreis_nt_id.grid(row=2, column=3, pady=5)
 
         ttk.Label(tarif_frame, text="Grundpreis (€/Jahr):").grid(row=3, column=0, pady=5, sticky="w")
         self.grundpreis = ttk.Entry(tarif_frame)
-        self.grundpreis.grid(row=3, column=1, pady=5, padx=(0, 10))
+        self.grundpreis.grid(row=3, column=1, pady=5, padx=(40, 10))
         ttk.Label(tarif_frame, text="ID:").grid(row=3, column=2, pady=5, padx=(40, 10), sticky="w")
         self.grundpreis_id = ttk.Entry(tarif_frame, width=10)
         self.grundpreis_id.grid(row=3, column=3, pady=5)
 
         ttk.Label(tarif_frame, text="Zählerkosten (€/Jahr):").grid(row=4, column=0, pady=5, sticky="w")
         self.zählerkosten = ttk.Entry(tarif_frame)
-        self.zählerkosten.grid(row=4, column=1, pady=5, padx=(0, 10))
+        self.zählerkosten.grid(row=4, column=1, pady=5, padx=(40, 10))
         ttk.Label(tarif_frame, text="ID:").grid(row=4, column=2, pady=5, padx=(40, 10), sticky="w")
         self.zählerkosten_id = ttk.Entry(tarif_frame, width=10)
         self.zählerkosten_id.grid(row=4, column=3, pady=5)
 
-        # دکمه Speichern
+        # دکمه Speichern زیر Zählerkosten با فاصله استاندارد
         ttk.Button(tarif_frame, text="Speichern", command=self.save_tarif).grid(row=5, column=0, columnspan=4, pady=10)
 
-        # جدول
+        # جدول با فاصله 40 پیکسل از دکمه
         table_frame = ttk.Frame(self.tarif_tab, relief="solid", borderwidth=2)
-        table_frame.place(x=10, y=170, width=960, height=480)
+        table_frame.place(x=10, y=210, width=960, height=440)  # y=210 برای 40 پیکسل فاصله از دکمه
 
         self.tarif_table = ttk.Treeview(table_frame, columns=("Von", "Bis", "Arbeitspreis HT", "Arbeitspreis NT", "Grundpreis", "Zählerkosten"), show="headings")
         self.tarif_table.heading("Von", text="Von")
