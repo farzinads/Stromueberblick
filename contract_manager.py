@@ -81,9 +81,12 @@ class ContractManager:
         self.filter_contracts(None)
 
     def setup_tabs_page(self):
-        ttk.Label(self.tabs_frame, text=f"Vertragskontonummer: {self.current_contract}", font=("Arial", 12, "bold")).pack(pady=5)
+        # Vertragsnummer سمت چپ با فاصله 20 پیکسل
+        self.contract_label = ttk.Label(self.tabs_frame, text=f"Vertragskontonummer: {self.current_contract or 'Kein Vertrag ausgewählt'}", font=("Arial", 12, "bold"))
+        self.contract_label.place(x=20, y=10)
+
         self.notebook = ttk.Notebook(self.tabs_frame)
-        self.notebook.pack(fill="both", expand=True)
+        self.notebook.pack(fill="both", expand=True, pady=40)  # فاصله برای برچسب
 
         self.tarif_tab = ttk.Frame(self.notebook)
         self.ablesung_tab = ttk.Frame(self.notebook)
@@ -99,7 +102,11 @@ class ContractManager:
         self.notebook.add(self.rechnungen_tab, text="Rechnungen")
         self.notebook.add(self.details_tab, text="Details")
 
-        ttk.Button(self.tabs_frame, text="Zurück", command=self.app.show_contract_page).pack(pady=5)
+        # دکمه Zurück قرمز و سمت راست
+        back_button = ttk.Button(self.tabs_frame, text="Zurück", command=self.app.show_contract_page, style="Red.TButton")
+        back_button.place(x=950, y=10, anchor="ne")
+        self.root.style = ttk.Style()
+        self.root.style.configure("Red.TButton", foreground="red")
 
         self.tarif_manager = TarifManager(self)
         self.ablesung_manager = AblesungManager(self)
@@ -185,6 +192,7 @@ class ContractManager:
             return
         self.current_contract = self.contract_table.item(selected[0], "values")[0]
         self.app.current_contract = self.current_contract
+        self.contract_label.config(text=f"Vertragskontonummer: {self.current_contract}")  # به‌روزرسانی برچسب
         self.app.show_tabs_page()
 
     def update_tabs(self):
