@@ -6,11 +6,11 @@ class ContractManager:
         self.root = app.root
         self.data = app.data
         self.current_contract = app.current_contract
-        self.contract_frame = app.contract_frame  # اصلاح به contract_frame
+        self.contract_frame = app.contract_frame
         self.setup_contract_frame()
 
     def setup_contract_frame(self):
-        # پاک کردن محتوای قبلی contract_frame
+        # پاک کردن محتوای قبلی
         for widget in self.contract_frame.winfo_children():
             widget.destroy()
 
@@ -62,4 +62,4 @@ class ContractManager:
             vertragskonto = self.contract_table.item(item, "values")[0]
             self.app.current_contract = vertragskonto
             self.current_contract = vertragskonto
-            self.app.show_tabs()  # سوئیچ به تب‌ها
+            self.app.show_tabs()

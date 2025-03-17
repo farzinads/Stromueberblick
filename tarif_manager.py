@@ -34,7 +34,7 @@ class TarifManager:
         ttk.Label(input_frame, text="Vertragstyp:").grid(row=4, column=0, pady=5, sticky="w")
         self.vertragstyp = ttk.Combobox(input_frame, values=["Privat", "Gewerbe"])
         self.vertragstyp.grid(row=4, column=1, pady=5, sticky="w")
-        self.vertragstyp.set("Privat")  # پیش‌فرض
+        self.vertragstyp.set("Privat")
 
         ttk.Label(input_frame, text="Vertragsbeginn:").grid(row=5, column=0, pady=5, sticky="w")
         self.vertragsbeginn = DateEntry(input_frame, date_pattern="dd.mm.yyyy")
@@ -91,7 +91,7 @@ class TarifManager:
             "vertragstyp": self.vertragstyp.get(),
             "vertragsbeginn": self.vertragsbeginn.get()
         }
-        if not all([tarif["anbieter"], tarif["vertragsbeginn"]]):  # حداقل Anbieter و Vertragsbeginn اجباری
+        if not all([tarif["anbieter"], tarif["vertragsbeginn"]]):
             messagebox.showerror("Fehler", "Anbieter und Vertragsbeginn dürfen nicht leer sein!")
             return
         self.data["tarife"].append(tarif)
