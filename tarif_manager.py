@@ -22,28 +22,40 @@ class TarifManager:
         self.bis_datum = DateEntry(tarif_frame, date_pattern="dd.mm.yyyy")
         self.bis_datum.grid(row=0, column=4, pady=5)
 
-        # فیلدهای بدون Tarifname
+        # فیلدها با ID
         ttk.Label(tarif_frame, text="Arbeitspreis HT (Ct/kWh):").grid(row=1, column=0, pady=5, sticky="w")
         self.arbeitspreis_ht = ttk.Entry(tarif_frame)
         self.arbeitspreis_ht.grid(row=1, column=1, pady=5)
+        ttk.Label(tarif_frame, text="ID:").grid(row=1, column=2, pady=5, sticky="w")
+        self.arbeitspreis_ht_id = ttk.Entry(tarif_frame, width=10)
+        self.arbeitspreis_ht_id.grid(row=1, column=3, pady=5)
 
         ttk.Label(tarif_frame, text="Arbeitspreis NT (Ct/kWh):").grid(row=2, column=0, pady=5, sticky="w")
         self.arbeitspreis_nt = ttk.Entry(tarif_frame)
         self.arbeitspreis_nt.grid(row=2, column=1, pady=5)
+        ttk.Label(tarif_frame, text="ID:").grid(row=2, column=2, pady=5, sticky="w")
+        self.arbeitspreis_nt_id = ttk.Entry(tarif_frame, width=10)
+        self.arbeitspreis_nt_id.grid(row=2, column=3, pady=5)
 
         ttk.Label(tarif_frame, text="Grundpreis (€/Jahr):").grid(row=3, column=0, pady=5, sticky="w")
         self.grundpreis = ttk.Entry(tarif_frame)
         self.grundpreis.grid(row=3, column=1, pady=5)
+        ttk.Label(tarif_frame, text="ID:").grid(row=3, column=2, pady=5, sticky="w")
+        self.grundpreis_id = ttk.Entry(tarif_frame, width=10)
+        self.grundpreis_id.grid(row=3, column=3, pady=5)
 
         ttk.Label(tarif_frame, text="Zählerkosten (€/Jahr):").grid(row=4, column=0, pady=5, sticky="w")
         self.zählerkosten = ttk.Entry(tarif_frame)
         self.zählerkosten.grid(row=4, column=1, pady=5)
+        ttk.Label(tarif_frame, text="ID:").grid(row=4, column=2, pady=5, sticky="w")
+        self.zählerkosten_id = ttk.Entry(tarif_frame, width=10)
+        self.zählerkosten_id.grid(row=4, column=3, pady=5)
 
-        ttk.Button(tarif_frame, text="Speichern", command=self.save_tarif).grid(row=5, column=0, columnspan=2, pady=10)
+        ttk.Button(tarif_frame, text="Speichern", command=self.save_tarif).grid(row=5, column=0, columnspan=4, pady=10)
 
-        # جدول با فاصله استاندارد (20 پیکسل زیر Zählerkosten)
+        # جدول با فاصله استاندارد
         table_frame = ttk.Frame(self.tarif_tab, relief="solid", borderwidth=2)
-        table_frame.place(x=10, y=170, width=960, height=480)  # y=170 برای فاصله 20 پیکسل از آخرین فیلد
+        table_frame.place(x=10, y=170, width=960, height=480)
 
         self.tarif_table = ttk.Treeview(table_frame, columns=("Von", "Bis", "Arbeitspreis HT", "Arbeitspreis NT", "Grundpreis", "Zählerkosten"), show="headings")
         self.tarif_table.heading("Von", text="Von")
@@ -72,7 +84,13 @@ class TarifManager:
         arbeitspreis_nt = self.arbeitspreis_nt.get()
         grundpreis = self.grundpreis.get()
         zählerkosten = self.zählerkosten.get()
-        if not all([von_datum, bis_datum, arbeitspreis_ht, arbeitspreis_nt, grundpreis, zählerkosten]):
+        arbeitspreis_ht_id = self.arbeitspreis_ht_id.get()
+        arbeitspreis_nt_id = self.arbeitspreis_nt_id.get()
+        grundpreis_id = self.grundpreis_id.get()
+        zählerkosten_id = self.zählerkosten_id.get()
+
+        if not all([von_datum, bis_datum, arbeitspreis_ht, arbeitspreis_nt, grundpreis, zählerkosten,
+                    arbeitspreis_ht_id, arbeitspreis_nt_id, grundpreis_id, zählerkosten_id]):
             messagebox.showerror("Fehler", "Alle Felder müssen ausgefüllت sein!")
             return
         try:
@@ -90,7 +108,11 @@ class TarifManager:
             "arbeitspreis_ht": arbeitspreis_ht,
             "arbeitspreis_nt": arbeitspreis_nt,
             "grundpreis": grundpreis,
-            "zählerkosten": zählerkosten
+            "zählerkosten": zählerkosten,
+            "arbeitspreis_ht_id": arbeitspreis_ht_id,
+            "arbeitspreis_nt_id": arbeitspreis_nt_id,
+            "grundpreis_id": grundpreis_id,
+            "zählerkosten_id": zählerkosten_id
         }
         if "tarife" not in self.data:
             self.data["tarife"] = []
@@ -109,10 +131,10 @@ class TarifManager:
                     self.tarif_table.insert("", "end", values=(
                         tarif["von_datum"],
                         tarif["bis_datum"],
-                        tarif["arbeitspreis_ht"],
-                        tarif["arbeitspreis_nt"],
-                        tarif["grundpreis"],
-                        tarif["zählerkosten"]
+                        f"{tarif['arbeitspreis_ht']} ({tarif['arbeitspreis_ht_id']})",
+                        f"{tarif['arbeitspreis_nt']} ({tarif['arbeitspreis_nt_id']})",
+                        f"{tarif['grundpreis']} ({tarif['grundpreis_id']})",
+                        f"{tarif['zählerkosten']} ({tarif['zählerkosten_id']})"
                     ))
 
     def clear_tarif_entries(self):
@@ -122,3 +144,7 @@ class TarifManager:
         self.arbeitspreis_nt.delete(0, tk.END)
         self.grundpreis.delete(0, tk.END)
         self.zählerkosten.delete(0, tk.END)
+        self.arbeitspreis_ht_id.delete(0, tk.END)
+        self.arbeitspreis_nt_id.delete(0, tk.END)
+        self.grundpreis_id.delete(0, tk.END)
+        self.zählerkosten_id.delete(0, tk.END)
