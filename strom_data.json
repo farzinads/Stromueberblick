@@ -1,7 +1,13 @@
 {
     "contracts": [
         {
-            "vertragskonto": "222"
+            "vertragskonto": "25253",
+            "anbieter": "hgfth",
+            "adresse": "fhh",
+            "tel_nummer": "hfgh",
+            "email": "hgfh",
+            "vertragstyp": "Privat",
+            "vertragsbeginn": "01.01.2025"
         }
     ],
     "tarife": [],

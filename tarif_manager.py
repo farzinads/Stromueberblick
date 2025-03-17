@@ -10,8 +10,7 @@ class TarifManager:
         self.setup_tarifedaten_tab()
 
     def setup_tarifedaten_tab(self):
-        ttk.Label(self.tarifedaten_tab, text=f"Tarifdaten für Vertrag {self.current_contract or 'keiner ausgewählt'}").pack(pady=20)
-        # بعداً فیلدهای تعرفه (مثل HT, NT، و غیره) رو اینجا اضافه می‌کنیم
+        ttk.Label(self.tarifedaten_tab, text="Hier kommen die Tarifdaten").pack(pady=20)
 
     def update_tarif_table(self):
-        pass  # فعلاً خالی، بعداً جدول تعرفه‌ها رو اضافه می‌کنیم
+        pass  # بعداً جدول تعرفه‌ها رو اضافه می‌کنیم

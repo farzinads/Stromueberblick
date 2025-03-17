@@ -55,6 +55,20 @@ class ContractManager:
         style = ttk.Style()
         style.configure("Red.TButton", foreground="red", font=("Arial", 10, "bold"))
 
+        # فیلترها
+        filter_frame = ttk.Frame(self.contract_frame)
+        filter_frame.pack(pady=5, padx=10, fill="x")
+
+        ttk.Label(filter_frame, text="Filter Anbieter:").pack(side="left", padx=5)
+        self.filter_anbieter = ttk.Entry(filter_frame)
+        self.filter_anbieter.pack(side="left", padx=5)
+        self.filter_anbieter.bind("<KeyRelease>", self.apply_filter)
+
+        ttk.Label(filter_frame, text="Filter Vertragstyp:").pack(side="left", padx=5)
+        self.filter_vertragstyp = ttk.Combobox(filter_frame, values=["", "Privat", "Gewerbe"])
+        self.filter_vertragstyp.pack(side="left", padx=5)
+        self.filter_vertragstyp.bind("<<ComboboxSelected>>", self.apply_filter)
+
         # جدول قراردادها
         table_frame = ttk.Frame(self.contract_frame)
         table_frame.pack(pady=10, padx=10, fill="both", expand=True)
@@ -72,14 +86,14 @@ class ContractManager:
         self.contract_table.column("Email", width=200, anchor="center")
         self.contract_table.pack(fill="both", expand=True)
 
-        # استایل جدول (شبیه Pandas)
+        # استایل جدول
         style.configure("Treeview", rowheight=25)
         style.configure("Treeview.Heading", font=("Arial", 10, "bold"))
         self.contract_table.tag_configure("oddrow", background="#f0f0f0")
         self.contract_table.tag_configure("evenrow", background="#ffffff")
 
         self.contract_table.bind("<Double-1>", self.on_double_click)
-        self.contract_table.bind("<Button-3>", self.show_context_menu)  # کلیک راست
+        self.contract_table.bind("<Button-3>", self.show_context_menu)
 
         # منوی کلیک راست
         self.context_menu = tk.Menu(self.root, tearoff=0)
@@ -125,15 +139,23 @@ class ContractManager:
 
     def update_contract_table(self):
         self.contract_table.delete(*self.contract_table.get_children())
+        filter_anbieter = self.filter_anbieter.get().strip().lower()
+        filter_vertragstyp = self.filter_vertragstyp.get()
         for i, contract in enumerate(self.data["contracts"]):
-            tag = "evenrow" if i % 2 == 0 else "oddrow"  # رنگ‌بندی متناوب
-            self.contract_table.insert("", "end", values=(
-                contract.get("anbieter", ""),
-                contract["vertragskonto"],
-                contract.get("vertragstyp", ""),
-                contract.get("tel_nummer", ""),
-                contract.get("email", "")
-            ), tags=(tag,))
+            anbieter_match = filter_anbieter in contract.get("anbieter", "").lower() if filter_anbieter else True
+            vertragstyp_match = contract.get("vertragstyp", "") == filter_vertragstyp if filter_vertragstyp else True
+            if anbieter_match and vertragstyp_match:
+                tag = "evenrow" if i % 2 == 0 else "oddrow"
+                self.contract_table.insert("", "end", values=(
+                    contract.get("anbieter", ""),
+                    contract["vertragskonto"],
+                    contract.get("vertragstyp", ""),
+                    contract.get("tel_nummer", ""),
+                    contract.get("email", "")
+                ), tags=(tag,))
+
+    def apply_filter(self, event=None):
+        self.update_contract_table()
 
     def on_double_click(self, event):
         item = self.contract_table.selection()
@@ -153,7 +175,7 @@ class ContractManager:
         item = self.contract_table.selection()
         if not item:
             return
-        vertragskonto = self.contract_table.item(item, "values")[1]  # ستون Vertragskonto
+        vertragskonto = self.contract_table.item(item, "values")[1]
         for contract in self.data["contracts"]:
             if contract["vertragskonto"] == vertragskonto:
                 self.contract_entry.delete(0, tk.END)
@@ -168,13 +190,13 @@ class ContractManager:
                 self.email.insert(0, contract.get("email", ""))
                 self.vertragstyp.set(contract.get("vertragstyp", "Privat"))
                 self.vertragsbeginn.set_date(contract.get("vertragsbeginn", "01.01.2025"))
-                self.data["contracts"].remove(contract)  # حذف موقت برای ویرایش
+                self.data["contracts"].remove(contract)
                 self.update_contract_table()
                 self.save_button.configure(text="Aktualisieren", command=self.update_contract)
                 break
 
     def update_contract(self):
-        self.add_contract()  # ذخیره با اطلاعات جدید
+        self.add_contract()
         self.save_button.configure(text="Speichern", command=self.add_contract)
 
     def delete_contract(self):
