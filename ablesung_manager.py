@@ -37,7 +37,6 @@ class AblesungManager:
         self.source_nt.grid(row=2, column=2, pady=5, padx=5, sticky="w")
         self.source_nt.set("A1")
 
-        # جدول توضیحات
         desc_frame = ttk.Frame(input_frame, relief="solid", borderwidth=1)
         desc_frame.grid(row=1, column=3, rowspan=2, padx=10, pady=5, sticky="nw")
         desc_data = [
@@ -119,11 +118,13 @@ class AblesungManager:
             return
         ablesungen = [a for a in self.data["ablesungen"] if a["vertragskonto"] == self.app.current_contract]
         ablesungen.sort(key=lambda x: datetime.strptime(x["ablesungsdatum"], "%d.%m.%Y"))
-        # دیکشنری برای تبدیل به superscript
         superscript = str.maketrans("1234", "¹²³⁴")
         for i, ablesung in enumerate(ablesungen):
-            ht_display = f"{ablesung['zählerstand_ht']}{ablesung['source_ht'].translate(superscript)}"
-            nt_display = f"{ablesung['zählerstand_nt']}{ablesung['source_nt'].translate(superscript)}"
+            # چک کردن وجود source_ht و source_nt، اگه نبود پیش‌فرض "A1"
+            source_ht = ablesung.get("source_ht", "A1")
+            source_nt = ablesung.get("source_nt", "A1")
+            ht_display = f"{ablesung['zählerstand_ht']}{source_ht.translate(superscript)}"
+            nt_display = f"{ablesung['zählerstand_nt']}{source_nt.translate(superscript)}"
             tag = "evenrow" if i % 2 == 0 else "oddrow"
             self.ablesung_table.insert("", "end", values=(
                 ablesung["ablesungsdatum"],
@@ -150,8 +151,8 @@ class AblesungManager:
                 self.zählerstand_ht.insert(0, ablesung["zählerstand_ht"])
                 self.zählerstand_nt.delete(0, tk.END)
                 self.zählerstand_nt.insert(0, ablesung["zählerstand_nt"])
-                self.source_ht.set(ablesung["source_ht"])
-                self.source_nt.set(ablesung["source_nt"])
+                self.source_ht.set(ablesung.get("source_ht", "A1"))
+                self.source_nt.set(ablesung.get("source_nt", "A1"))
                 self.data["ablesungen"].remove(ablesung)
                 self.update_ablesung_table()
                 self.ablesung_save_button.configure(text="Aktualisieren", command=self.update_ablesung)

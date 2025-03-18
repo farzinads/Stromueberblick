@@ -58,8 +58,11 @@ class VerbrauchManager:
                 continue
             prev_ablesung = ablesungen[i-1]
             zeitraum = f"{prev_ablesung['ablesungsdatum']} - {ablesung['ablesungsdatum']}"
-            zählerstand_ht = f"{ablesung['zählerstand_ht']}{ablesung['source_ht'].translate(superscript)}"
-            zählerstand_nt = f"{ablesung['zählerstand_nt']}{ablesung['source_nt'].translate(superscript)}"
+            # چک کردن وجود source_ht و source_nt، اگه نبود پیش‌فرض "A1"
+            source_ht = ablesung.get("source_ht", "A1")
+            source_nt = ablesung.get("source_nt", "A1")
+            zählerstand_ht = f"{ablesung['zählerstand_ht']}{source_ht.translate(superscript)}"
+            zählerstand_nt = f"{ablesung['zählerstand_nt']}{source_nt.translate(superscript)}"
             try:
                 verbrauch_ht = float(ablesung["zählerstand_ht"]) - float(prev_ablesung["zählerstand_ht"])
                 verbrauch_nt = float(ablesung["zählerstand_nt"]) - float(prev_ablesung["zählerstand_nt"])
