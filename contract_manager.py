@@ -1,4 +1,7 @@
-from base import tk, ttk, messagebox, DateEntry
+import tkinter as tk
+from tkinter import ttk, messagebox
+from tkcalendar import DateEntry
+from base import load_data, save_data
 
 class ContractManager:
     def __init__(self, app):
@@ -17,7 +20,6 @@ class ContractManager:
         style = ttk.Style()
         style.configure("LightGray.TFrame", background="#B0B0B0")
 
-        # فرم ورودی با حاشیه
         input_frame = ttk.Frame(self.contract_frame, relief="solid", borderwidth=2)
         input_frame.pack(side="left", padx=20, pady=10, anchor="nw")
 
@@ -60,7 +62,6 @@ class ContractManager:
 
         style.configure("Red.TButton", foreground="red", font=("Arial", 10, "bold"))
 
-        # فیلترها با حاشیه
         filter_frame = ttk.Frame(self.contract_frame, relief="solid", borderwidth=2)
         filter_frame.pack(pady=5, padx=10, fill="x")
 
@@ -74,7 +75,6 @@ class ContractManager:
         self.filter_vertragstyp.pack(side="left", padx=5)
         self.filter_vertragstyp.bind("<<ComboboxSelected>>", self.apply_filter)
 
-        # جدول قراردادها با حاشیه
         table_frame = ttk.Frame(self.contract_frame, relief="solid", borderwidth=2)
         table_frame.pack(pady=10, padx=10, fill="both", expand=True)
 

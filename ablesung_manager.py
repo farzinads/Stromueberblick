@@ -1,11 +1,13 @@
-from base import tk, ttk, messagebox, DateEntry
+import tkinter as tk
+from tkinter import ttk, messagebox
+from tkcalendar import DateEntry
+from base import load_data, save_data
 
 class AblesungManager:
     def __init__(self, app):
         self.app = app
         self.root = app.root
         self.data = app.data
-        self.current_contract = None
         self.ablesung_tab = app.ablesung_tab
         self.setup_ablesung_tab()
 

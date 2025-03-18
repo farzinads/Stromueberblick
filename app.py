@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from base import load_data, save_data
 from contract_manager import ContractManager
 from tarif_manager import TarifManager
@@ -22,7 +22,6 @@ class StromÜberblick:
         self.contract_manager = ContractManager(self)
         self.setup_tabs_frame()
 
-        # ذخیره داده‌ها قبل از بسته شدن برنامه
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def setup_tabs_frame(self):
@@ -94,7 +93,7 @@ class StromÜberblick:
         self.contract_manager.update_contract_table()
 
     def on_closing(self):
-        self.save_data()  # ذخیره داده‌ها قبل از بسته شدن
+        self.save_data()
         self.root.destroy()
 
 if __name__ == "__main__":

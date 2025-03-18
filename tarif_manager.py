@@ -1,4 +1,7 @@
-from base import tk, ttk, messagebox, DateEntry
+import tkinter as tk
+from tkinter import ttk, messagebox
+from tkcalendar import DateEntry
+from base import load_data, save_data
 
 class TarifManager:
     def __init__(self, app):
@@ -110,7 +113,7 @@ class TarifManager:
         self.data["tarife"].append(tarif)
         self.app.save_data()
         self.clear_tarif_entries()
-        self.update_tarif_table()  # مطمئن می‌شم جدول آپدیت بشه
+        self.update_tarif_table()
         messagebox.showinfo("Erfolg", "Tarifdaten wurden gespeichert!")
 
     def clear_tarif_entries(self):

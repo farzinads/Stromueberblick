@@ -1,11 +1,12 @@
-from base import tk, ttk, messagebox
+import tkinter as tk
+from tkinter import ttk, messagebox
+from base import load_data, save_data
 
 class VerbrauchManager:
     def __init__(self, app):
         self.app = app
         self.root = app.root
         self.data = app.data
-        self.current_contract = None
         self.verbrauch_tab = app.verbrauchtsmengen_tab
         self.setup_verbrauch_tab()
 
@@ -33,7 +34,7 @@ class VerbrauchManager:
 
         self.verbrauch_table.bind("<Button-3>", self.show_context_menu)
         self.context_menu = tk.Menu(self.root, tearoff=0)
-        self.context_menu.add_command(label="Löschen", command=self.delete_verbrauch)  # فعلاً فقط حذف
+        self.context_menu.add_command(label="Löschen", command=self.delete_verbrauch)
 
         self.update_verbrauch_table()
 
@@ -62,7 +63,7 @@ class VerbrauchManager:
         if not item:
             return
         values = self.verbrauch_table.item(item, "values")
-        if "-" in values[0]:  # اگر بازه زمانی باشه
+        if "-" in values[0]:
             start, end = values[0].split(" - ")
             if messagebox.askyesno("Bestätigung", f"Möchten Sie den Eintrag {values[0]} löschen?"):
                 for i, ablesung in enumerate(self.data["ablesungen"]):
