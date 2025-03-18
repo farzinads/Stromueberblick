@@ -97,13 +97,13 @@ class TarifManager:
             "von": self.von_date.get(),
             "bis": self.bis_date.get(),
             "arbeitspreis_ht": self.arbeitspreis_ht.get().strip(),
-            "idht": self.idht.get().strip(),
+            "idht": self.idht.get().strip() or "",
             "arbeitspreis_nt": self.arbeitspreis_nt.get().strip(),
-            "idnt": self.idnt.get().strip(),
+            "idnt": self.idnt.get().strip() or "",
             "grundpreis": self.grundpreis.get().strip(),
-            "idgr": self.idgr.get().strip(),
+            "idgr": self.idgr.get().strip() or "",
             "zähler": self.zähler.get().strip(),
-            "idzl": self.idzl.get().strip()
+            "idzl": self.idzl.get().strip() or ""
         }
         if not all([tarif["arbeitspreis_ht"], tarif["grundpreis"], tarif["von"]]):
             messagebox.showerror("Fehler", "Arbeitspreis HT, Grundpreis und Von dürfen nicht leer sein!")
@@ -115,6 +115,7 @@ class TarifManager:
         self.clear_tarif_entries()
         self.update_tarif_table()
         messagebox.showinfo("Erfolg", "Tarifdaten wurden gespeichert!")
+        print(f"Saved tarif: {tarif}")  # دیباگ
 
     def clear_tarif_entries(self):
         self.von_date.set_date("01.01.2025")
@@ -130,24 +131,26 @@ class TarifManager:
 
     def update_tarif_table(self):
         self.tarif_table.delete(*self.tarif_table.get_children())
-        if "tarife" in self.data and self.app.current_contract:
-            for i, tarif in enumerate(self.data["tarife"]):
-                if tarif["vertragskonto"] == self.app.current_contract:
-                    zeitraum = f"{tarif['von']} - {tarif['bis']}"
-                    ht_display = f"{tarif['arbeitspreis_ht']} ({tarif['idht']})" if tarif["idht"] else tarif["arbeitspreis_ht"]
-                    nt_display = f"{tarif['arbeitspreis_nt']} ({tarif['idnt']})" if tarif["idnt"] else tarif["arbeitspreis_nt"]
-                    grundpreis_display = f"{tarif['grundpreis']} ({tarif['idgr']})" if tarif["idgr"] else tarif["grundpreis"]
-                    zähler_display = f"{tarif['zähler']} ({tarif['idzl']})" if tarif["idzl"] else tarif["zähler"]
-                    tag = "evenrow" if i % 2 == 0 else "oddrow"
-                    self.tarif_table.insert("", "end", values=(
-                        zeitraum,
-                        ht_display,
-                        nt_display,
-                        grundpreis_display,
-                        zähler_display
-                    ), tags=(tag,))
-        else:
+        if "tarife" not in self.data or not self.app.current_contract:
             print("No data or current_contract not set:", self.app.current_contract)
+            return
+        print(f"Updating table for contract: {self.app.current_contract}")  # دیباگ
+        for i, tarif in enumerate(self.data["tarife"]):
+            if tarif["vertragskonto"] == self.app.current_contract:
+                zeitraum = f"{tarif['von']} - {tarif['bis']}"
+                ht_display = f"{tarif['arbeitspreis_ht']} ({tarif.get('idht', '')})" if tarif.get("idht") else tarif["arbeitspreis_ht"]
+                nt_display = f"{tarif['arbeitspreis_nt']} ({tarif.get('idnt', '')})" if tarif.get("idnt") else tarif["arbeitspreis_nt"]
+                grundpreis_display = f"{tarif['grundpreis']} ({tarif.get('idgr', '')})" if tarif.get("idgr") else tarif["grundpreis"]
+                zähler_display = f"{tarif['zähler']} ({tarif.get('idzl', '')})" if tarif.get("idzl") else tarif["zähler"]
+                tag = "evenrow" if i % 2 == 0 else "oddrow"
+                self.tarif_table.insert("", "end", values=(
+                    zeitraum,
+                    ht_display,
+                    nt_display,
+                    grundpreis_display,
+                    zähler_display
+                ), tags=(tag,))
+                print(f"Added to table: {zeitraum}")  # دیباگ
 
     def show_context_menu(self, event):
         item = self.tarif_table.identify_row(event.y)
@@ -168,19 +171,19 @@ class TarifManager:
                 self.arbeitspreis_ht.delete(0, tk.END)
                 self.arbeitspreis_ht.insert(0, tarif["arbeitspreis_ht"])
                 self.idht.delete(0, tk.END)
-                self.idht.insert(0, tarif["idht"])
+                self.idht.insert(0, tarif.get("idht", ""))
                 self.arbeitspreis_nt.delete(0, tk.END)
                 self.arbeitspreis_nt.insert(0, tarif["arbeitspreis_nt"])
                 self.idnt.delete(0, tk.END)
-                self.idnt.insert(0, tarif["idnt"])
+                self.idnt.insert(0, tarif.get("idnt", ""))
                 self.grundpreis.delete(0, tk.END)
                 self.grundpreis.insert(0, tarif["grundpreis"])
                 self.idgr.delete(0, tk.END)
-                self.idgr.insert(0, tarif["idgr"])
+                self.idgr.insert(0, tarif.get("idgr", ""))
                 self.zähler.delete(0, tk.END)
                 self.zähler.insert(0, tarif["zähler"])
                 self.idzl.delete(0, tk.END)
-                self.idzl.insert(0, tarif["idzl"])
+                self.idzl.insert(0, tarif.get("idzl", ""))
                 self.data["tarife"].remove(tarif)
                 self.update_tarif_table()
                 self.save_button.configure(text="Aktualisieren", command=self.update_tarif)

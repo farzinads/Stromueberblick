@@ -8,7 +8,6 @@ class ContractManager:
         self.app = app
         self.root = app.root
         self.data = app.data
-        self.current_contract = app.current_contract
         self.contract_frame = app.contract_frame
         self.setup_contract_frame()
 
@@ -167,7 +166,7 @@ class ContractManager:
         if item:
             vertragskonto = self.contract_table.item(item, "values")[1]
             self.app.current_contract = vertragskonto
-            self.current_contract = vertragskonto
+            print(f"Selected contract: {self.app.current_contract}")  # دیباگ
             self.app.show_tabs()
 
     def show_context_menu(self, event):
