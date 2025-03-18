@@ -48,8 +48,8 @@ class VerbrauchManager:
 
     def update_verbrauch_table(self):
         self.verbrauch_table.delete(*self.verbrauch_table.get_children())
-        if "ablesungen" not in self.data or not self.app.current_contract:
-            print("No ablesungen data or current_contract not set:", self.app.current_contract)
+        if "ablesungen" not in self.data or not self.app.current_contract or len(self.data["ablesungen"]) < 2:
+            print("No sufficient ablesungen data or current_contract not set:", self.app.current_contract)
             return
         ablesungen = [a for a in self.data["ablesungen"] if a["vertragskonto"] == self.app.current_contract]
         ablesungen.sort(key=lambda x: datetime.strptime(x["ablesungsdatum"], "%d.%m.%Y"))
@@ -57,20 +57,17 @@ class VerbrauchManager:
             'A': 'ᴬ', 'B': 'ᴮ', '1': '¹', '2': '²', '3': '³', '4': '⁴'
         }
         total_verbrauch = 0
+        last_end_date = None
 
         for i, ablesung in enumerate(ablesungen):
             if i == 0:
+                last_end_date = datetime.strptime(ablesung["ablesungsdatum"], "%d.%m.%Y")
                 continue
             prev_ablesung = ablesungen[i-1]
-            start_date = datetime.strptime(prev_ablesung["ablesungsdatum"], "%d.%m.%Y")
-            end_date = datetime.strptime(ablesung["ablesungsdatum"], "%d.%m.%Y")
-            if i == 1:
-                zeitraum_start = prev_ablesung["ablesungsdatum"]
-            else:
-                # شروع از فردای پایان قبلی
-                prev_end_date = datetime.strptime(ablesungen[i-2]["ablesungsdatum"], "%d.%m.%Y")
-                zeitraum_start = (prev_end_date + timedelta(days=1)).strftime("%d.%m.%Y")
-            zeitraum = f"{zeitraum_start} - {ablesung['ablesungsdatum']}"
+            current_end_date = datetime.strptime(ablesung["ablesungsdatum"], "%d.%m.%Y")
+            zeitraum_start = (last_end_date if i == 1 else last_end_date + timedelta(days=1)).strftime("%d.%m.%Y")
+            zeitraum_end = ablesung["ablesungsdatum"]
+            zeitraum = f"{zeitraum_start} - {zeitraum_end}"
 
             source_ht_start = prev_ablesung.get("source_ht", "A1")
             source_nt_start = prev_ablesung.get("source_nt", "A1")
@@ -102,6 +99,7 @@ class VerbrauchManager:
                 verbrauch_total
             ), tags=(tag,))
             print(f"Added to verbrauch table: {zeitraum}")
+            last_end_date = current_end_date
 
         if total_verbrauch != 0:
             self.verbrauch_table.insert("", "end", values=(

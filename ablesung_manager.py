@@ -43,7 +43,6 @@ class AblesungManager:
         style = ttk.Style()
         style.configure("Red.TButton", foreground="red", font=("Arial", 10, "bold"))
 
-        # جدول توضیحات با فاصله ۵۰۰ پیکسل از Ablesungsdatum
         desc_frame = ttk.Frame(self.ablesung_tab, relief="solid", borderwidth=1)
         desc_frame.place(x=500, y=10)
         desc_data = [
@@ -59,9 +58,8 @@ class AblesungManager:
             ttk.Label(desc_frame, text=code, font=("Arial", 10)).grid(row=i, column=0, padx=2, pady=2, sticky="w")
             ttk.Label(desc_frame, text=desc, font=("Arial", 10)).grid(row=i, column=1, padx=2, pady=2, sticky="w")
 
-        # جدول اصلی زیر جدول توضیحات با فاصله ۲۰ پیکسل
         table_frame = ttk.Frame(self.ablesung_tab, relief="solid", borderwidth=2)
-        table_frame.place(x=500, y=170, width=400, height=300)  # y=170 برای فاصله ۲۰ پیکسل از desc_frame
+        table_frame.place(x=500, y=170, width=400, height=300)
 
         self.ablesung_table = ttk.Treeview(table_frame, columns=("Datum", "HT", "NT"), show="headings")
         self.ablesung_table.heading("Datum", text="Ablesungsdatum")
@@ -72,7 +70,7 @@ class AblesungManager:
         self.ablesung_table.column("NT", width=120, anchor="center")
         self.ablesung_table.pack(fill="both", expand=True)
 
-        style.configure("Treeview", rowheight=25)
+        style.configure("Treeview", rowheight=25, font=("Arial", 12))  # فونت بزرگ‌تر برای کل جدول
         style.configure("Treeview.Heading", font=("Arial", 10, "bold"))
         self.ablesung_table.tag_configure("oddrow", background="#d3d3d3")
         self.ablesung_table.tag_configure("evenrow", background="#ffffff")
@@ -135,8 +133,8 @@ class AblesungManager:
                 ablesung["ablesungsdatum"],
                 ht_display,
                 nt_display
-            ), tags=(tag,), text=f"font=('Arial', 12)")  # فونت ۲ شماره بزرگ‌تر
-            print(f"Added to ablesung table: {ablesung['ablesungsdatum']}")  # دیباگ
+            ), tags=(tag,))
+            print(f"Added to ablesung table: {ablesung['ablesungsdatum']}")
 
     def show_context_menu(self, event):
         item = self.ablesung_table.identify_row(event.y)
