@@ -37,8 +37,9 @@ class AblesungManager:
         self.source_nt.grid(row=2, column=2, pady=5, padx=5, sticky="w")
         self.source_nt.set("A1")
 
-        desc_frame = ttk.Frame(input_frame, relief="solid", borderwidth=1)
-        desc_frame.grid(row=1, column=3, rowspan=2, padx=10, pady=5, sticky="nw")
+        # جدول توضیحات به سمت راست منتقل شده
+        desc_frame = ttk.Frame(self.ablesung_tab, relief="solid", borderwidth=1)
+        desc_frame.pack(side="right", padx=50, pady=30, anchor="ne")
         desc_data = [
             ("A1", "Ablesung Messstellenbetrieber"),
             ("A2", "Ablesung Netzbetrieber"),
@@ -120,7 +121,6 @@ class AblesungManager:
         ablesungen.sort(key=lambda x: datetime.strptime(x["ablesungsdatum"], "%d.%m.%Y"))
         superscript = str.maketrans("1234", "¹²³⁴")
         for i, ablesung in enumerate(ablesungen):
-            # چک کردن وجود source_ht و source_nt، اگه نبود پیش‌فرض "A1"
             source_ht = ablesung.get("source_ht", "A1")
             source_nt = ablesung.get("source_nt", "A1")
             ht_display = f"{ablesung['zählerstand_ht']}{source_ht.translate(superscript)}"
