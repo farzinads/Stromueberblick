@@ -22,6 +22,9 @@ class StromÜberblick:
         self.contract_manager = ContractManager(self)
         self.setup_tabs_frame()
 
+        # ذخیره داده‌ها قبل از بسته شدن برنامه
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
     def setup_tabs_frame(self):
         info_frame = ttk.Frame(self.tabs_frame)
         info_frame.pack(fill="x", padx=10, pady=5)
@@ -89,6 +92,10 @@ class StromÜberblick:
         self.tabs_frame.pack_forget()
         self.contract_frame.pack(fill="both", expand=True)
         self.contract_manager.update_contract_table()
+
+    def on_closing(self):
+        self.save_data()  # ذخیره داده‌ها قبل از بسته شدن
+        self.root.destroy()
 
 if __name__ == "__main__":
     root = tk.Tk()

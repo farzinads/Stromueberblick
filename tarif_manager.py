@@ -5,7 +5,6 @@ class TarifManager:
         self.app = app
         self.root = app.root
         self.data = app.data
-        self.current_contract = None
         self.tarifedaten_tab = app.tarifedaten_tab
         self.setup_tarifedaten_tab()
 
@@ -111,7 +110,8 @@ class TarifManager:
         self.data["tarife"].append(tarif)
         self.app.save_data()
         self.clear_tarif_entries()
-        self.update_tarif_table()
+        self.update_tarif_table()  # مطمئن می‌شم جدول آپدیت بشه
+        messagebox.showinfo("Erfolg", "Tarifdaten wurden gespeichert!")
 
     def clear_tarif_entries(self):
         self.von_date.set_date("01.01.2025")
@@ -143,6 +143,8 @@ class TarifManager:
                         grundpreis_display,
                         zähler_display
                     ), tags=(tag,))
+        else:
+            print("No data or current_contract not set:", self.app.current_contract)
 
     def show_context_menu(self, event):
         item = self.tarif_table.identify_row(event.y)

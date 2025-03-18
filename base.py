@@ -1,20 +1,21 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
-from tkcalendar import DateEntry
-import os
 import json
-
-PDF_DIR = "pdfs"
-if not os.path.exists(PDF_DIR):
-    os.makedirs(PDF_DIR)
+import os
 
 def load_data():
-    try:
-        with open("strom_data.json", "r", encoding="utf-8") as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return {"contracts": [], "tarife": [], "ablesungen": [], "zahlungen": [], "rechnungen": []}
+    if os.path.exists("strom_data.json"):
+        try:
+            with open("strom_data.json", "r", encoding="utf-8") as file:
+                data = json.load(file)
+                if isinstance(data, dict):
+                    return data
+        except json.JSONDecodeError:
+            print("Error decoding JSON, returning default structure.")
+    return {"contracts": [], "tarife": [], "ablesungen": []}
 
 def save_data(data):
-    with open("strom_data.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
+    try:
+        with open("strom_data.json", "w", encoding="utf-8") as file:
+            json.dump(data, file, ensure_ascii=False, indent=4)
+        print("Data saved successfully to strom_data.json")
+    except Exception as e:
+        print(f"Error saving data: {e}")
