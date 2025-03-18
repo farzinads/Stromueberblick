@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from base import load_data, save_data
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class VerbrauchManager:
     def __init__(self, app):
@@ -34,11 +34,11 @@ class VerbrauchManager:
         self.verbrauch_table.pack(fill="both", expand=True)
 
         style = ttk.Style()
-        style.configure("Treeview", rowheight=40)  # افزایش ارتفاع برای دو خط
+        style.configure("Treeview", rowheight=25)  # ارتفاع به حالت عادی برگشت
         style.configure("Treeview.Heading", font=("Arial", 10, "bold"))
         self.verbrauch_table.tag_configure("oddrow", background="#d3d3d3")
         self.verbrauch_table.tag_configure("evenrow", background="#ffffff")
-        self.verbrauch_table.tag_configure("summe", background="#A9A9A9", font=("Arial", 10, "bold"))  # خاکستری ملایم
+        self.verbrauch_table.tag_configure("summe", background="#A9A9A9", font=("Arial", 10, "bold"))
 
         self.verbrauch_table.bind("<Button-3>", self.show_context_menu)
         self.context_menu = tk.Menu(self.root, tearoff=0)
@@ -62,22 +62,26 @@ class VerbrauchManager:
             if i == 0:
                 continue
             prev_ablesung = ablesungen[i-1]
+            # تاریخ شروع و پایان واقعی از ablesungen
+            start_date = datetime.strptime(prev_ablesung["ablesungsdatum"], "%d.%m.%Y")
+            end_date = datetime.strptime(ablesung["ablesungsdatum"], "%d.%m.%Y")
             zeitraum = f"{prev_ablesung['ablesungsdatum']} - {ablesung['ablesungsdatum']}"
+
             source_ht_start = prev_ablesung.get("source_ht", "A1")
             source_nt_start = prev_ablesung.get("source_nt", "A1")
             source_ht_end = ablesung.get("source_ht", "A1")
             source_nt_end = ablesung.get("source_nt", "A1")
 
-            # فقط مقادیر با مولفه‌ها
-            zählerstand_ht = f"{prev_ablesung['zählerstand_ht']}{''.join(superscript_map.get(char, char) for char in source_ht_start)}\n{ablesung['zählerstand_ht']}{''.join(superscript_map.get(char, char) for char in source_ht_end)}"
-            zählerstand_nt = f"{prev_ablesung['zählerstand_nt']}{''.join(superscript_map.get(char, char) for char in source_nt_start)}\n{ablesung['zählerstand_nt']}{''.join(superscript_map.get(char, char) for char in source_nt_end)}"
+            # نمایش مقادیر با خط تیره
+            zählerstand_ht = f"{prev_ablesung['zählerstand_ht']}{''.join(superscript_map.get(char, char) for char in source_ht_start)}-{ablesung['zählerstand_ht']}{''.join(superscript_map.get(char, char) for char in source_ht_end)}"
+            zählerstand_nt = f"{prev_ablesung['zählerstand_nt']}{''.join(superscript_map.get(char, char) for char in source_nt_start)}-{ablesung['zählerstand_nt']}{''.join(superscript_map.get(char, char) for char in source_nt_end)}"
 
             try:
                 ht_start = float(prev_ablesung["zählerstand_ht"])
                 ht_end = float(ablesung["zählerstand_ht"])
                 nt_start = float(prev_ablesung["zählerstand_nt"])
                 nt_end = float(ablesung["zählerstand_nt"])
-                verbrauch_ht = ht_end - ht_start  # مقدار بیشتر - کمتر
+                verbrauch_ht = ht_end - ht_start
                 verbrauch_nt = nt_end - nt_start
                 verbrauch_total = verbrauch_ht + verbrauch_nt
                 total_verbrauch += verbrauch_total
