@@ -15,8 +15,9 @@ class VerbrauchManager:
         for widget in self.verbrauch_tab.winfo_children():
             widget.destroy()
 
+        # جدول با فاصله ۲۰ پیکسل از لبه‌ها
         table_frame = ttk.Frame(self.verbrauch_tab, relief="solid", borderwidth=2)
-        table_frame.pack(pady=10, padx=10, fill="both", expand=True)
+        table_frame.place(x=20, y=10, relwidth=1.0, width=-40, height=500)  # 20 پیکسل از چپ و راست
 
         self.verbrauch_table = ttk.Treeview(table_frame, columns=("Zeitraum", "Zählerstand HT", "Zählerstand NT", "Verbrauch HT", "Verbrauch NT", "Verbrauch Total"), show="headings")
         self.verbrauch_table.heading("Zeitraum", text="Zeitraum")
