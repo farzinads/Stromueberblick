@@ -26,18 +26,19 @@ class VerbrauchManager:
         self.verbrauch_table.heading("Verbrauch NT", text="Verbrauch NT")
         self.verbrauch_table.heading("Verbrauch Total", text="Verbrauch Total")
         self.verbrauch_table.column("Zeitraum", width=150, anchor="center")
-        self.verbrauch_table.column("Zählerstand HT", width=120, anchor="center")
-        self.verbrauch_table.column("Zählerstand NT", width=120, anchor="center")
+        self.verbrauch_table.column("Zählerstand HT", width=150, anchor="center")
+        self.verbrauch_table.column("Zählerstand NT", width=150, anchor="center")
         self.verbrauch_table.column("Verbrauch HT", width=120, anchor="center")
         self.verbrauch_table.column("Verbrauch NT", width=120, anchor="center")
         self.verbrauch_table.column("Verbrauch Total", width=120, anchor="center")
         self.verbrauch_table.pack(fill="both", expand=True)
 
         style = ttk.Style()
-        style.configure("Treeview", rowheight=25)
+        style.configure("Treeview", rowheight=40)  # افزایش ارتفاع برای دو خط
         style.configure("Treeview.Heading", font=("Arial", 10, "bold"))
         self.verbrauch_table.tag_configure("oddrow", background="#d3d3d3")
         self.verbrauch_table.tag_configure("evenrow", background="#ffffff")
+        self.verbrauch_table.tag_configure("summe", background="yellow", font=("Arial", 10, "bold"))  # اصلاح رنگ
 
         self.verbrauch_table.bind("<Button-3>", self.show_context_menu)
         self.context_menu = tk.Menu(self.root, tearoff=0)
@@ -53,22 +54,30 @@ class VerbrauchManager:
         ablesungen = [a for a in self.data["ablesungen"] if a["vertragskonto"] == self.app.current_contract]
         ablesungen.sort(key=lambda x: datetime.strptime(x["ablesungsdatum"], "%d.%m.%Y"))
         superscript = str.maketrans("1234", "¹²³⁴")
+        total_verbrauch = 0
+
         for i, ablesung in enumerate(ablesungen):
             if i == 0:
                 continue
             prev_ablesung = ablesungen[i-1]
             zeitraum = f"{prev_ablesung['ablesungsdatum']} - {ablesung['ablesungsdatum']}"
-            # چک کردن وجود source_ht و source_nt، اگه نبود پیش‌فرض "A1"
-            source_ht = ablesung.get("source_ht", "A1")
-            source_nt = ablesung.get("source_nt", "A1")
-            zählerstand_ht = f"{ablesung['zählerstand_ht']}{source_ht.translate(superscript)}"
-            zählerstand_nt = f"{ablesung['zählerstand_nt']}{source_nt.translate(superscript)}"
+            source_ht_start = prev_ablesung.get("source_ht", "A1")
+            source_nt_start = prev_ablesung.get("source_nt", "A1")
+            source_ht_end = ablesung.get("source_ht", "A1")
+            source_nt_end = ablesung.get("source_nt", "A1")
+
+            # نمایش دو خطی برای Zählerstand
+            zählerstand_ht = f"Start: {prev_ablesung['zählerstand_ht']}{source_ht_start.translate(superscript)}\nEnde: {ablesung['zählerstand_ht']}{source_ht_end.translate(superscript)}"
+            zählerstand_nt = f"Start: {prev_ablesung['zählerstand_nt']}{source_nt_start.translate(superscript)}\nEnde: {ablesung['zählerstand_nt']}{source_nt_end.translate(superscript)}"
+
             try:
-                verbrauch_ht = float(ablesung["zählerstand_ht"]) - float(prev_ablesung["zählerstand_ht"])
-                verbrauch_nt = float(ablesung["zählerstand_nt"]) - float(prev_ablesung["zählerstand_nt"])
+                verbrauch_ht = float(prev_ablesung["zählerstand_ht"]) - float(ablesung["zählerstand_ht"])
+                verbrauch_nt = float(prev_ablesung["zählerstand_nt"]) - float(ablesung["zählerstand_nt"])
                 verbrauch_total = verbrauch_ht + verbrauch_nt
+                total_verbrauch += verbrauch_total
             except ValueError:
                 verbrauch_ht = verbrauch_nt = verbrauch_total = "N/A"
+
             tag = "evenrow" if i % 2 == 0 else "oddrow"
             self.verbrauch_table.insert("", "end", values=(
                 zeitraum,
@@ -78,7 +87,13 @@ class VerbrauchManager:
                 verbrauch_nt,
                 verbrauch_total
             ), tags=(tag,))
-            print(f"Added to verbrauch table: {zeitraum}")  # دیباگ
+            print(f"Added to verbrauch table: {zeitraum}")
+
+        # اضافه کردن ردیف جمع کل
+        if total_verbrauch != 0:
+            self.verbrauch_table.insert("", "end", values=(
+                "Summe", "", "", "", "", total_verbrauch
+            ), tags=("summe",))
 
     def show_context_menu(self, event):
         item = self.verbrauch_table.identify_row(event.y)
