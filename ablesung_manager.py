@@ -51,6 +51,11 @@ class AblesungManager:
         self.ablesung_table.tag_configure("oddrow", background="#d3d3d3")
         self.ablesung_table.tag_configure("evenrow", background="#ffffff")
 
+        self.ablesung_table.bind("<Button-3>", self.show_context_menu)
+        self.context_menu = tk.Menu(self.root, tearoff=0)
+        self.context_menu.add_command(label="Bearbeiten", command=self.edit_ablesung)
+        self.context_menu.add_command(label="Löschen", command=self.delete_ablesung)
+
         self.update_ablesung_table()
 
     def save_ablesung(self):
@@ -89,3 +94,44 @@ class AblesungManager:
                         ablesung["zählerstand_ht"],
                         ablesung["zählerstand_nt"]
                     ), tags=(tag,))
+
+    def show_context_menu(self, event):
+        item = self.ablesung_table.identify_row(event.y)
+        if item:
+            self.ablesung_table.selection_set(item)
+            self.context_menu.post(event.x_root, event.y_root)
+
+    def edit_ablesung(self):
+        item = self.ablesung_table.selection()
+        if not item:
+            return
+        values = self.ablesung_table.item(item, "values")
+        for ablesung in self.data["ablesungen"]:
+            if ablesung["vertragskonto"] == self.app.current_contract and ablesung["ablesungsdatum"] == values[0]:
+                self.ablesungsdatum.set_date(ablesung["ablesungsdatum"])
+                self.zählerstand_ht.delete(0, tk.END)
+                self.zählerstand_ht.insert(0, ablesung["zählerstand_ht"])
+                self.zählerstand_nt.delete(0, tk.END)
+                self.zählerstand_nt.insert(0, ablesung["zählerstand_nt"])
+                self.data["ablesungen"].remove(ablesung)
+                self.update_ablesung_table()
+                self.ablesung_save_button.configure(text="Aktualisieren", command=self.update_ablesung)
+                break
+
+    def update_ablesung(self):
+        self.save_ablesung()
+        self.ablesung_save_button.configure(text="Speichern", command=self.save_ablesung)
+
+    def delete_ablesung(self):
+        item = self.ablesung_table.selection()
+        if not item:
+            return
+        values = self.ablesung_table.item(item, "values")
+        if messagebox.askyesno("Bestätigung", f"Möchten Sie den Eintrag {values[0]} löschen?"):
+            for i, ablesung in enumerate(self.data["ablesungen"]):
+                if ablesung["vertragskonto"] == self.app.current_contract and ablesung["ablesungsdatum"] == values[0]:
+                    del self.data["ablesungen"][i]
+                    self.app.save_data()
+                    self.update_ablesung_table()
+                    messagebox.showinfo("Erfolg", f"Eintrag {values[0]} wurde gelöscht!")
+                    break

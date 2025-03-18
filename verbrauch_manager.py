@@ -1,4 +1,4 @@
-from base import tk, ttk
+from base import tk, ttk, messagebox
 
 class VerbrauchManager:
     def __init__(self, app):
@@ -31,6 +31,10 @@ class VerbrauchManager:
         self.verbrauch_table.tag_configure("oddrow", background="#d3d3d3")
         self.verbrauch_table.tag_configure("evenrow", background="#ffffff")
 
+        self.verbrauch_table.bind("<Button-3>", self.show_context_menu)
+        self.context_menu = tk.Menu(self.root, tearoff=0)
+        self.context_menu.add_command(label="Löschen", command=self.delete_verbrauch)  # فعلاً فقط حذف
+
         self.update_verbrauch_table()
 
     def update_verbrauch_table(self):
@@ -46,3 +50,25 @@ class VerbrauchManager:
                 verbrauch = "N/A"
                 tag = "evenrow" if i % 2 == 0 else "oddrow"
                 self.verbrauch_table.insert("", "end", values=(zeitraum, zählerstand, verbrauch), tags=(tag,))
+
+    def show_context_menu(self, event):
+        item = self.verbrauch_table.identify_row(event.y)
+        if item:
+            self.verbrauch_table.selection_set(item)
+            self.context_menu.post(event.x_root, event.y_root)
+
+    def delete_verbrauch(self):
+        item = self.verbrauch_table.selection()
+        if not item:
+            return
+        values = self.verbrauch_table.item(item, "values")
+        if "-" in values[0]:  # اگر بازه زمانی باشه
+            start, end = values[0].split(" - ")
+            if messagebox.askyesno("Bestätigung", f"Möchten Sie den Eintrag {values[0]} löschen?"):
+                for i, ablesung in enumerate(self.data["ablesungen"]):
+                    if ablesung["vertragskonto"] == self.app.current_contract and ablesung["ablesungsdatum"] == end:
+                        del self.data["ablesungen"][i]
+                        self.app.save_data()
+                        self.update_verbrauch_table()
+                        messagebox.showinfo("Erfolg", f"Eintrag {values[0]} wurde gelöscht!")
+                        break

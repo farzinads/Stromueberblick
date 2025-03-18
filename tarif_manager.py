@@ -5,7 +5,7 @@ class TarifManager:
         self.app = app
         self.root = app.root
         self.data = app.data
-        self.current_contract = None  # هر مدیر خودش current_contract رو مدیریت کنه
+        self.current_contract = None
         self.tarifedaten_tab = app.tarifedaten_tab
         self.setup_tarifedaten_tab()
 
@@ -24,33 +24,33 @@ class TarifManager:
         self.bis_date = DateEntry(input_frame, date_pattern="dd.mm.yyyy", width=12)
         self.bis_date.grid(row=0, column=4, pady=5, sticky="w")
 
-        ttk.Label(input_frame, text="Arbeitspreis HT (kWh):").grid(row=1, column=0, pady=5, sticky="w")
+        ttk.Label(input_frame, text="Arbeitspreis HT (ct/kWh):").grid(row=1, column=0, pady=5, sticky="w")
         self.arbeitspreis_ht = ttk.Entry(input_frame, width=15)
         self.arbeitspreis_ht.grid(row=1, column=1, pady=5, padx=(0, 10), sticky="w")
-        ttk.Label(input_frame, text="ID:").grid(row=1, column=2, pady=5, padx=(50, 0), sticky="w")
-        self.arbeitspreis_ht_id = ttk.Entry(input_frame, width=10)
-        self.arbeitspreis_ht_id.grid(row=1, column=3, pady=5, sticky="w")
+        ttk.Label(input_frame, text="IDHT:").grid(row=1, column=2, pady=5, padx=(50, 0), sticky="w")
+        self.idht = ttk.Entry(input_frame, width=10)
+        self.idht.grid(row=1, column=3, pady=5, sticky="w")
 
-        ttk.Label(input_frame, text="Arbeitspreis NT (kWh):").grid(row=2, column=0, pady=5, sticky="w")
+        ttk.Label(input_frame, text="Arbeitspreis NT (ct/kWh):").grid(row=2, column=0, pady=5, sticky="w")
         self.arbeitspreis_nt = ttk.Entry(input_frame, width=15)
         self.arbeitspreis_nt.grid(row=2, column=1, pady=5, padx=(0, 10), sticky="w")
-        ttk.Label(input_frame, text="ID:").grid(row=2, column=2, pady=5, padx=(50, 0), sticky="w")
-        self.arbeitspreis_nt_id = ttk.Entry(input_frame, width=10)
-        self.arbeitspreis_nt_id.grid(row=2, column=3, pady=5, sticky="w")
+        ttk.Label(input_frame, text="IDNT:").grid(row=2, column=2, pady=5, padx=(50, 0), sticky="w")
+        self.idnt = ttk.Entry(input_frame, width=10)
+        self.idnt.grid(row=2, column=3, pady=5, sticky="w")
 
         ttk.Label(input_frame, text="Grundpreis (€/Jahr):").grid(row=3, column=0, pady=5, sticky="w")
         self.grundpreis = ttk.Entry(input_frame, width=15)
         self.grundpreis.grid(row=3, column=1, pady=5, padx=(0, 10), sticky="w")
-        ttk.Label(input_frame, text="ID:").grid(row=3, column=2, pady=5, padx=(50, 0), sticky="w")
-        self.grundpreis_id = ttk.Entry(input_frame, width=10)
-        self.grundpreis_id.grid(row=3, column=3, pady=5, sticky="w")
+        ttk.Label(input_frame, text="IDGR:").grid(row=3, column=2, pady=5, padx=(50, 0), sticky="w")
+        self.idgr = ttk.Entry(input_frame, width=10)
+        self.idgr.grid(row=3, column=3, pady=5, sticky="w")
 
         ttk.Label(input_frame, text="Zähler (€/Jahr):").grid(row=4, column=0, pady=5, sticky="w")
         self.zähler = ttk.Entry(input_frame, width=15)
         self.zähler.grid(row=4, column=1, pady=5, padx=(0, 10), sticky="w")
-        ttk.Label(input_frame, text="ID:").grid(row=4, column=2, pady=5, padx=(50, 0), sticky="w")
-        self.zähler_id = ttk.Entry(input_frame, width=10)
-        self.zähler_id.grid(row=4, column=3, pady=5, sticky="w")
+        ttk.Label(input_frame, text="IDZL:").grid(row=4, column=2, pady=5, padx=(50, 0), sticky="w")
+        self.idzl = ttk.Entry(input_frame, width=10)
+        self.idzl.grid(row=4, column=3, pady=5, sticky="w")
 
         self.save_button = ttk.Button(input_frame, text="Speichern", command=self.save_tarif)
         self.save_button.grid(row=5, column=1, pady=5, sticky="w")
@@ -68,16 +68,21 @@ class TarifManager:
         self.tarif_table.heading("Grundpreis", text="Grundpreis")
         self.tarif_table.heading("Zähler", text="Zähler")
         self.tarif_table.column("Zeitraum", width=150, anchor="center")
-        self.tarif_table.column("HT", width=100, anchor="center")
-        self.tarif_table.column("NT", width=100, anchor="center")
-        self.tarif_table.column("Grundpreis", width=100, anchor="center")
-        self.tarif_table.column("Zähler", width=100, anchor="center")
+        self.tarif_table.column("HT", width=120, anchor="center")
+        self.tarif_table.column("NT", width=120, anchor="center")
+        self.tarif_table.column("Grundpreis", width=120, anchor="center")
+        self.tarif_table.column("Zähler", width=120, anchor="center")
         self.tarif_table.pack(fill="both", expand=True)
 
         style.configure("Treeview", rowheight=25)
         style.configure("Treeview.Heading", font=("Arial", 10, "bold"))
         self.tarif_table.tag_configure("oddrow", background="#d3d3d3")
         self.tarif_table.tag_configure("evenrow", background="#ffffff")
+
+        self.tarif_table.bind("<Button-3>", self.show_context_menu)
+        self.context_menu = tk.Menu(self.root, tearoff=0)
+        self.context_menu.add_command(label="Bearbeiten", command=self.edit_tarif)
+        self.context_menu.add_command(label="Löschen", command=self.delete_tarif)
 
         self.update_tarif_table()
 
@@ -90,13 +95,13 @@ class TarifManager:
             "von": self.von_date.get(),
             "bis": self.bis_date.get(),
             "arbeitspreis_ht": self.arbeitspreis_ht.get().strip(),
-            "arbeitspreis_ht_id": self.arbeitspreis_ht_id.get().strip(),
+            "idht": self.idht.get().strip(),
             "arbeitspreis_nt": self.arbeitspreis_nt.get().strip(),
-            "arbeitspreis_nt_id": self.arbeitspreis_nt_id.get().strip(),
+            "idnt": self.idnt.get().strip(),
             "grundpreis": self.grundpreis.get().strip(),
-            "grundpreis_id": self.grundpreis_id.get().strip(),
+            "idgr": self.idgr.get().strip(),
             "zähler": self.zähler.get().strip(),
-            "zähler_id": self.zähler_id.get().strip()
+            "idzl": self.idzl.get().strip()
         }
         if not all([tarif["arbeitspreis_ht"], tarif["grundpreis"], tarif["von"]]):
             messagebox.showerror("Fehler", "Arbeitspreis HT, Grundpreis und Von dürfen nicht leer sein!")
@@ -112,13 +117,13 @@ class TarifManager:
         self.von_date.set_date("01.01.2025")
         self.bis_date.set_date("31.12.2025")
         self.arbeitspreis_ht.delete(0, tk.END)
-        self.arbeitspreis_ht_id.delete(0, tk.END)
+        self.idht.delete(0, tk.END)
         self.arbeitspreis_nt.delete(0, tk.END)
-        self.arbeitspreis_nt_id.delete(0, tk.END)
+        self.idnt.delete(0, tk.END)
         self.grundpreis.delete(0, tk.END)
-        self.grundpreis_id.delete(0, tk.END)
+        self.idgr.delete(0, tk.END)
         self.zähler.delete(0, tk.END)
-        self.zähler_id.delete(0, tk.END)
+        self.idzl.delete(0, tk.END)
 
     def update_tarif_table(self):
         self.tarif_table.delete(*self.tarif_table.get_children())
@@ -126,11 +131,70 @@ class TarifManager:
             for i, tarif in enumerate(self.data["tarife"]):
                 if tarif["vertragskonto"] == self.app.current_contract:
                     zeitraum = f"{tarif['von']} - {tarif['bis']}"
+                    ht_display = f"{tarif['arbeitspreis_ht']} ({tarif['idht']})" if tarif["idht"] else tarif["arbeitspreis_ht"]
+                    nt_display = f"{tarif['arbeitspreis_nt']} ({tarif['idnt']})" if tarif["idnt"] else tarif["arbeitspreis_nt"]
+                    grundpreis_display = f"{tarif['grundpreis']} ({tarif['idgr']})" if tarif["idgr"] else tarif["grundpreis"]
+                    zähler_display = f"{tarif['zähler']} ({tarif['idzl']})" if tarif["idzl"] else tarif["zähler"]
                     tag = "evenrow" if i % 2 == 0 else "oddrow"
                     self.tarif_table.insert("", "end", values=(
                         zeitraum,
-                        tarif["arbeitspreis_ht"],
-                        tarif["arbeitspreis_nt"],
-                        tarif["grundpreis"],
-                        tarif["zähler"]
+                        ht_display,
+                        nt_display,
+                        grundpreis_display,
+                        zähler_display
                     ), tags=(tag,))
+
+    def show_context_menu(self, event):
+        item = self.tarif_table.identify_row(event.y)
+        if item:
+            self.tarif_table.selection_set(item)
+            self.context_menu.post(event.x_root, event.y_root)
+
+    def edit_tarif(self):
+        item = self.tarif_table.selection()
+        if not item:
+            return
+        values = self.tarif_table.item(item, "values")
+        zeitraum = values[0].split(" - ")
+        for tarif in self.data["tarife"]:
+            if tarif["vertragskonto"] == self.app.current_contract and f"{tarif['von']} - {tarif['bis']}" == values[0]:
+                self.von_date.set_date(tarif["von"])
+                self.bis_date.set_date(tarif["bis"])
+                self.arbeitspreis_ht.delete(0, tk.END)
+                self.arbeitspreis_ht.insert(0, tarif["arbeitspreis_ht"])
+                self.idht.delete(0, tk.END)
+                self.idht.insert(0, tarif["idht"])
+                self.arbeitspreis_nt.delete(0, tk.END)
+                self.arbeitspreis_nt.insert(0, tarif["arbeitspreis_nt"])
+                self.idnt.delete(0, tk.END)
+                self.idnt.insert(0, tarif["idnt"])
+                self.grundpreis.delete(0, tk.END)
+                self.grundpreis.insert(0, tarif["grundpreis"])
+                self.idgr.delete(0, tk.END)
+                self.idgr.insert(0, tarif["idgr"])
+                self.zähler.delete(0, tk.END)
+                self.zähler.insert(0, tarif["zähler"])
+                self.idzl.delete(0, tk.END)
+                self.idzl.insert(0, tarif["idzl"])
+                self.data["tarife"].remove(tarif)
+                self.update_tarif_table()
+                self.save_button.configure(text="Aktualisieren", command=self.update_tarif)
+                break
+
+    def update_tarif(self):
+        self.save_tarif()
+        self.save_button.configure(text="Speichern", command=self.save_tarif)
+
+    def delete_tarif(self):
+        item = self.tarif_table.selection()
+        if not item:
+            return
+        values = self.tarif_table.item(item, "values")
+        if messagebox.askyesno("Bestätigung", f"Möchten Sie den Eintrag {values[0]} löschen?"):
+            for i, tarif in enumerate(self.data["tarife"]):
+                if tarif["vertragskonto"] == self.app.current_contract and f"{tarif['von']} - {tarif['bis']}" == values[0]:
+                    del self.data["tarife"][i]
+                    self.app.save_data()
+                    self.update_tarif_table()
+                    messagebox.showinfo("Erfolg", f"Eintrag {values[0]} wurde gelöscht!")
+                    break
