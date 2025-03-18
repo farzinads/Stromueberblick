@@ -71,6 +71,9 @@ class StromÜberblick:
         save_data(self.data)
 
     def show_tabs(self):
+        if not self.current_contract:
+            messagebox.showerror("Fehler", "Kein Vertrag ausgewählt! Bitte einen Vertrag auswählen.")
+            return
         self.contract_frame.pack_forget()
         self.tabs_frame.pack(fill="both", expand=True)
         for contract in self.data["contracts"]:

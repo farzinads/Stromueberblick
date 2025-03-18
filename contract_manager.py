@@ -13,13 +13,12 @@ class ContractManager:
         for widget in self.contract_frame.winfo_children():
             widget.destroy()
 
-        # رنگ پس‌زمینه شیک و ملایم (طوسی روشن با حس حرفه‌ای)
         self.contract_frame.configure(style="LightGray.TFrame")
         style = ttk.Style()
-        style.configure("LightGray.TFrame", background="#B0B0B0")  # طوسی روشن و شیک
+        style.configure("LightGray.TFrame", background="#B0B0B0")
 
-        # فرم ورودی - سمت چپ با فاصله 20 پیکسل
-        input_frame = ttk.Frame(self.contract_frame)
+        # فرم ورودی با حاشیه
+        input_frame = ttk.Frame(self.contract_frame, relief="solid", borderwidth=2)
         input_frame.pack(side="left", padx=20, pady=10, anchor="nw")
 
         ttk.Label(input_frame, text="Anbieter:").grid(row=0, column=0, pady=5, sticky="w")
@@ -61,8 +60,8 @@ class ContractManager:
 
         style.configure("Red.TButton", foreground="red", font=("Arial", 10, "bold"))
 
-        # فیلترها
-        filter_frame = ttk.Frame(self.contract_frame)
+        # فیلترها با حاشیه
+        filter_frame = ttk.Frame(self.contract_frame, relief="solid", borderwidth=2)
         filter_frame.pack(pady=5, padx=10, fill="x")
 
         ttk.Label(filter_frame, text="Filter Anbieter:").pack(side="left", padx=5)

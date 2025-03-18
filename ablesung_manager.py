@@ -5,7 +5,7 @@ class AblesungManager:
         self.app = app
         self.root = app.root
         self.data = app.data
-        self.current_contract = app.current_contract
+        self.current_contract = None
         self.ablesung_tab = app.ablesung_tab
         self.setup_ablesung_tab()
 
@@ -13,7 +13,6 @@ class AblesungManager:
         for widget in self.ablesung_tab.winfo_children():
             widget.destroy()
 
-        # فرم ورودی
         input_frame = ttk.Frame(self.ablesung_tab)
         input_frame.pack(pady=10, padx=10, anchor="nw")
 
@@ -29,14 +28,12 @@ class AblesungManager:
         self.zählerstand_nt = ttk.Entry(input_frame, width=15)
         self.zählerstand_nt.grid(row=2, column=1, pady=5, sticky="w")
 
-        # دکمه Speichern
         self.ablesung_save_button = ttk.Button(input_frame, text="Speichern", command=self.save_ablesung)
         self.ablesung_save_button.grid(row=3, column=1, pady=5, sticky="w")
         self.ablesung_save_button.configure(style="Red.TButton")
         style = ttk.Style()
         style.configure("Red.TButton", foreground="red", font=("Arial", 10, "bold"))
 
-        # جدول
         table_frame = ttk.Frame(self.ablesung_tab, relief="solid", borderwidth=2)
         table_frame.pack(pady=25, padx=10, fill="both", expand=True)
 
@@ -57,8 +54,11 @@ class AblesungManager:
         self.update_ablesung_table()
 
     def save_ablesung(self):
+        if not self.app.current_contract:
+            messagebox.showerror("Fehler", "Kein Vertrag ausgewählt!")
+            return
         ablesung = {
-            "vertragskonto": self.current_contract or "default",
+            "vertragskonto": self.app.current_contract,
             "ablesungsdatum": self.ablesungsdatum.get(),
             "zählerstand_ht": self.zählerstand_ht.get().strip(),
             "zählerstand_nt": self.zählerstand_nt.get().strip()
@@ -72,7 +72,6 @@ class AblesungManager:
         self.app.save_data()
         self.clear_ablesung_entries()
         self.update_ablesung_table()
-        messagebox.showinfo("Erfolg", "Ablesung wurde gespeichert!")
 
     def clear_ablesung_entries(self):
         self.ablesungsdatum.set_date("01.01.2025")
@@ -81,9 +80,9 @@ class AblesungManager:
 
     def update_ablesung_table(self):
         self.ablesung_table.delete(*self.ablesung_table.get_children())
-        if "ablesungen" in self.data and self.current_contract:
+        if "ablesungen" in self.data and self.app.current_contract:
             for i, ablesung in enumerate(self.data["ablesungen"]):
-                if ablesung["vertragskonto"] == self.current_contract:
+                if ablesung["vertragskonto"] == self.app.current_contract:
                     tag = "evenrow" if i % 2 == 0 else "oddrow"
                     self.ablesung_table.insert("", "end", values=(
                         ablesung["ablesungsdatum"],

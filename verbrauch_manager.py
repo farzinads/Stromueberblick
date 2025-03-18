@@ -5,7 +5,7 @@ class VerbrauchManager:
         self.app = app
         self.root = app.root
         self.data = app.data
-        self.current_contract = app.current_contract
+        self.current_contract = None
         self.verbrauch_tab = app.verbrauchtsmengen_tab
         self.setup_verbrauch_tab()
 
@@ -13,7 +13,6 @@ class VerbrauchManager:
         for widget in self.verbrauch_tab.winfo_children():
             widget.destroy()
 
-        # جدول
         table_frame = ttk.Frame(self.verbrauch_tab, relief="solid", borderwidth=2)
         table_frame.pack(pady=10, padx=10, fill="both", expand=True)
 
@@ -36,14 +35,14 @@ class VerbrauchManager:
 
     def update_verbrauch_table(self):
         self.verbrauch_table.delete(*self.verbrauch_table.get_children())
-        if "ablesungen" in self.data and self.current_contract:
-            ablesungen = [a for a in self.data["ablesungen"] if a["vertragskonto"] == self.current_contract]
-            ablesungen.sort(key=lambda x: x["ablesungsdatum"])  # مرتب‌سازی بر اساس تاریخ
+        if "ablesungen" in self.data and self.app.current_contract:
+            ablesungen = [a for a in self.data["ablesungen"] if a["vertragskonto"] == self.app.current_contract]
+            ablesungen.sort(key=lambda x: x["ablesungsdatum"])
             for i, ablesung in enumerate(ablesungen):
                 zeitraum = ablesung["ablesungsdatum"]
                 if i > 0:
                     zeitraum = f"{ablesungen[i-1]['ablesungsdatum']} - {ablesung['ablesungsdatum']}"
                 zählerstand = f"HT: {ablesung['zählerstand_ht']} NT: {ablesung['zählerstand_nt']}"
-                verbrauch = "N/A"  # بعداً فرمول‌نویسی می‌کنیم
+                verbrauch = "N/A"
                 tag = "evenrow" if i % 2 == 0 else "oddrow"
                 self.verbrauch_table.insert("", "end", values=(zeitraum, zählerstand, verbrauch), tags=(tag,))

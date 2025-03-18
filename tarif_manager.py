@@ -5,7 +5,7 @@ class TarifManager:
         self.app = app
         self.root = app.root
         self.data = app.data
-        self.current_contract = app.current_contract
+        self.current_contract = None  # هر مدیر خودش current_contract رو مدیریت کنه
         self.tarifedaten_tab = app.tarifedaten_tab
         self.setup_tarifedaten_tab()
 
@@ -13,11 +13,9 @@ class TarifManager:
         for widget in self.tarifedaten_tab.winfo_children():
             widget.destroy()
 
-        # فرم ورودی
         input_frame = ttk.Frame(self.tarifedaten_tab)
         input_frame.pack(pady=10, padx=10, anchor="nw")
 
-        # Zeitraum
         ttk.Label(input_frame, text="Zeitraum:").grid(row=0, column=0, pady=5, sticky="w")
         ttk.Label(input_frame, text="Von:").grid(row=0, column=1, pady=5, sticky="w")
         self.von_date = DateEntry(input_frame, date_pattern="dd.mm.yyyy", width=12)
@@ -26,11 +24,10 @@ class TarifManager:
         self.bis_date = DateEntry(input_frame, date_pattern="dd.mm.yyyy", width=12)
         self.bis_date.grid(row=0, column=4, pady=5, sticky="w")
 
-        # فیلدها و کدهای شناسایی
         ttk.Label(input_frame, text="Arbeitspreis HT (kWh):").grid(row=1, column=0, pady=5, sticky="w")
         self.arbeitspreis_ht = ttk.Entry(input_frame, width=15)
-        self.arbeitspreis_ht.grid(row=1, column=1, pady=5, padx=(0, 10), sticky="w")  # فاصله 10 پیکسل از ID
-        ttk.Label(input_frame, text="ID:").grid(row=1, column=2, pady=5, padx=(50, 0), sticky="w")  # فاصله 50 پیکسل از لیبل
+        self.arbeitspreis_ht.grid(row=1, column=1, pady=5, padx=(0, 10), sticky="w")
+        ttk.Label(input_frame, text="ID:").grid(row=1, column=2, pady=5, padx=(50, 0), sticky="w")
         self.arbeitspreis_ht_id = ttk.Entry(input_frame, width=10)
         self.arbeitspreis_ht_id.grid(row=1, column=3, pady=5, sticky="w")
 
@@ -55,14 +52,12 @@ class TarifManager:
         self.zähler_id = ttk.Entry(input_frame, width=10)
         self.zähler_id.grid(row=4, column=3, pady=5, sticky="w")
 
-        # دکمه Speichern
         self.save_button = ttk.Button(input_frame, text="Speichern", command=self.save_tarif)
         self.save_button.grid(row=5, column=1, pady=5, sticky="w")
         self.save_button.configure(style="Red.TButton")
         style = ttk.Style()
         style.configure("Red.TButton", foreground="red", font=("Arial", 10, "bold"))
 
-        # جدول
         table_frame = ttk.Frame(self.tarifedaten_tab, relief="solid", borderwidth=2)
         table_frame.pack(pady=25, padx=10, fill="both", expand=True)
 
@@ -87,8 +82,11 @@ class TarifManager:
         self.update_tarif_table()
 
     def save_tarif(self):
+        if not self.app.current_contract:
+            messagebox.showerror("Fehler", "Kein Vertrag ausgewählt!")
+            return
         tarif = {
-            "vertragskonto": self.current_contract or "default",
+            "vertragskonto": self.app.current_contract,
             "von": self.von_date.get(),
             "bis": self.bis_date.get(),
             "arbeitspreis_ht": self.arbeitspreis_ht.get().strip(),
@@ -109,7 +107,6 @@ class TarifManager:
         self.app.save_data()
         self.clear_tarif_entries()
         self.update_tarif_table()
-        messagebox.showinfo("Erfolg", "Tarifdaten wurden gespeichert!")
 
     def clear_tarif_entries(self):
         self.von_date.set_date("01.01.2025")
@@ -125,9 +122,9 @@ class TarifManager:
 
     def update_tarif_table(self):
         self.tarif_table.delete(*self.tarif_table.get_children())
-        if "tarife" in self.data and self.current_contract:
+        if "tarife" in self.data and self.app.current_contract:
             for i, tarif in enumerate(self.data["tarife"]):
-                if tarif["vertragskonto"] == self.current_contract:
+                if tarif["vertragskonto"] == self.app.current_contract:
                     zeitraum = f"{tarif['von']} - {tarif['bis']}"
                     tag = "evenrow" if i % 2 == 0 else "oddrow"
                     self.tarif_table.insert("", "end", values=(
