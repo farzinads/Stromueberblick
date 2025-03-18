@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from tkcalendar import DateEntry
 from base import load_data, save_data
+from datetime import datetime
 
 class TarifManager:
     def __init__(self, app):
@@ -135,22 +136,24 @@ class TarifManager:
             print("No data or current_contract not set:", self.app.current_contract)
             return
         print(f"Updating table for contract: {self.app.current_contract}")  # دیباگ
-        for i, tarif in enumerate(self.data["tarife"]):
-            if tarif["vertragskonto"] == self.app.current_contract:
-                zeitraum = f"{tarif['von']} - {tarif['bis']}"
-                ht_display = f"{tarif['arbeitspreis_ht']} ({tarif.get('idht', '')})" if tarif.get("idht") else tarif["arbeitspreis_ht"]
-                nt_display = f"{tarif['arbeitspreis_nt']} ({tarif.get('idnt', '')})" if tarif.get("idnt") else tarif["arbeitspreis_nt"]
-                grundpreis_display = f"{tarif['grundpreis']} ({tarif.get('idgr', '')})" if tarif.get("idgr") else tarif["grundpreis"]
-                zähler_display = f"{tarif['zähler']} ({tarif.get('idzl', '')})" if tarif.get("idzl") else tarif["zähler"]
-                tag = "evenrow" if i % 2 == 0 else "oddrow"
-                self.tarif_table.insert("", "end", values=(
-                    zeitraum,
-                    ht_display,
-                    nt_display,
-                    grundpreis_display,
-                    zähler_display
-                ), tags=(tag,))
-                print(f"Added to table: {zeitraum}")  # دیباگ
+        # سورت کردن بر اساس تاریخ "von"
+        tarife = [t for t in self.data["tarife"] if t["vertragskonto"] == self.app.current_contract]
+        tarife.sort(key=lambda x: datetime.strptime(x["von"], "%d.%m.%Y"))
+        for i, tarif in enumerate(tarife):
+            zeitraum = f"{tarif['von']} - {tarif['bis']}"
+            ht_display = f"{tarif['arbeitspreis_ht']} ({tarif.get('idht', '')})" if tarif.get("idht") else tarif["arbeitspreis_ht"]
+            nt_display = f"{tarif['arbeitspreis_nt']} ({tarif.get('idnt', '')})" if tarif.get("idnt") else tarif["arbeitspreis_nt"]
+            grundpreis_display = f"{tarif['grundpreis']} ({tarif.get('idgr', '')})" if tarif.get("idgr") else tarif["grundpreis"]
+            zähler_display = f"{tarif['zähler']} ({tarif.get('idzl', '')})" if tarif.get("idzl") else tarif["zähler"]
+            tag = "evenrow" if i % 2 == 0 else "oddrow"
+            self.tarif_table.insert("", "end", values=(
+                zeitraum,
+                ht_display,
+                nt_display,
+                grundpreis_display,
+                zähler_display
+            ), tags=(tag,))
+            print(f"Added to table: {zeitraum}")  # دیباگ
 
     def show_context_menu(self, event):
         item = self.tarif_table.identify_row(event.y)

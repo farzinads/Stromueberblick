@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from tkcalendar import DateEntry
 from base import load_data, save_data
+from datetime import datetime
 
 class AblesungManager:
     def __init__(self, app):
@@ -87,15 +88,20 @@ class AblesungManager:
 
     def update_ablesung_table(self):
         self.ablesung_table.delete(*self.ablesung_table.get_children())
-        if "ablesungen" in self.data and self.app.current_contract:
-            for i, ablesung in enumerate(self.data["ablesungen"]):
-                if ablesung["vertragskonto"] == self.app.current_contract:
-                    tag = "evenrow" if i % 2 == 0 else "oddrow"
-                    self.ablesung_table.insert("", "end", values=(
-                        ablesung["ablesungsdatum"],
-                        ablesung["zählerstand_ht"],
-                        ablesung["zählerstand_nt"]
-                    ), tags=(tag,))
+        if "ablesungen" not in self.data or not self.app.current_contract:
+            print("No ablesungen data or current_contract not set:", self.app.current_contract)
+            return
+        # سورت کردن بر اساس تاریخ
+        ablesungen = [a for a in self.data["ablesungen"] if a["vertragskonto"] == self.app.current_contract]
+        ablesungen.sort(key=lambda x: datetime.strptime(x["ablesungsdatum"], "%d.%m.%Y"))
+        for i, ablesung in enumerate(ablesungen):
+            tag = "evenrow" if i % 2 == 0 else "oddrow"
+            self.ablesung_table.insert("", "end", values=(
+                ablesung["ablesungsdatum"],
+                ablesung["zählerstand_ht"],
+                ablesung["zählerstand_nt"]
+            ), tags=(tag,))
+            print(f"Added to ablesung table: {ablesung['ablesungsdatum']}")  # دیباگ
 
     def show_context_menu(self, event):
         item = self.ablesung_table.identify_row(event.y)

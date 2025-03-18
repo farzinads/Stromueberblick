@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from base import load_data, save_data
+from datetime import datetime
 
 class VerbrauchManager:
     def __init__(self, app):
@@ -17,13 +18,19 @@ class VerbrauchManager:
         table_frame = ttk.Frame(self.verbrauch_tab, relief="solid", borderwidth=2)
         table_frame.pack(pady=10, padx=10, fill="both", expand=True)
 
-        self.verbrauch_table = ttk.Treeview(table_frame, columns=("Zeitraum", "Zählerstand", "Verbrauch"), show="headings")
+        self.verbrauch_table = ttk.Treeview(table_frame, columns=("Zeitraum", "Zählerstand HT", "Zählerstand NT", "Verbrauch HT", "Verbrauch NT", "Verbrauch Total"), show="headings")
         self.verbrauch_table.heading("Zeitraum", text="Zeitraum")
-        self.verbrauch_table.heading("Zählerstand", text="Zählerstand")
-        self.verbrauch_table.heading("Verbrauch", text="Verbrauch")
+        self.verbrauch_table.heading("Zählerstand HT", text="Zählerstand HT")
+        self.verbrauch_table.heading("Zählerstand NT", text="Zählerstand NT")
+        self.verbrauch_table.heading("Verbrauch HT", text="Verbrauch HT")
+        self.verbrauch_table.heading("Verbrauch NT", text="Verbrauch NT")
+        self.verbrauch_table.heading("Verbrauch Total", text="Verbrauch Total")
         self.verbrauch_table.column("Zeitraum", width=150, anchor="center")
-        self.verbrauch_table.column("Zählerstand", width=120, anchor="center")
-        self.verbrauch_table.column("Verbrauch", width=120, anchor="center")
+        self.verbrauch_table.column("Zählerstand HT", width=120, anchor="center")
+        self.verbrauch_table.column("Zählerstand NT", width=120, anchor="center")
+        self.verbrauch_table.column("Verbrauch HT", width=120, anchor="center")
+        self.verbrauch_table.column("Verbrauch NT", width=120, anchor="center")
+        self.verbrauch_table.column("Verbrauch Total", width=120, anchor="center")
         self.verbrauch_table.pack(fill="both", expand=True)
 
         style = ttk.Style()
@@ -40,17 +47,34 @@ class VerbrauchManager:
 
     def update_verbrauch_table(self):
         self.verbrauch_table.delete(*self.verbrauch_table.get_children())
-        if "ablesungen" in self.data and self.app.current_contract:
-            ablesungen = [a for a in self.data["ablesungen"] if a["vertragskonto"] == self.app.current_contract]
-            ablesungen.sort(key=lambda x: x["ablesungsdatum"])
-            for i, ablesung in enumerate(ablesungen):
-                zeitraum = ablesung["ablesungsdatum"]
-                if i > 0:
-                    zeitraum = f"{ablesungen[i-1]['ablesungsdatum']} - {ablesung['ablesungsdatum']}"
-                zählerstand = f"HT: {ablesung['zählerstand_ht']} NT: {ablesung['zählerstand_nt']}"
-                verbrauch = "N/A"
-                tag = "evenrow" if i % 2 == 0 else "oddrow"
-                self.verbrauch_table.insert("", "end", values=(zeitraum, zählerstand, verbrauch), tags=(tag,))
+        if "ablesungen" not in self.data or not self.app.current_contract:
+            print("No ablesungen data or current_contract not set:", self.app.current_contract)
+            return
+        ablesungen = [a for a in self.data["ablesungen"] if a["vertragskonto"] == self.app.current_contract]
+        ablesungen.sort(key=lambda x: datetime.strptime(x["ablesungsdatum"], "%d.%m.%Y"))
+        for i, ablesung in enumerate(ablesungen):
+            if i == 0:
+                continue  # اولین ردیف برای محاسبه مصرف نیاز به ردیف قبلی داره
+            prev_ablesung = ablesungen[i-1]
+            zeitraum = f"{prev_ablesung['ablesungsdatum']} - {ablesung['ablesungsdatum']}"
+            zählerstand_ht = ablesung["zählerstand_ht"]
+            zählerstand_nt = ablesung["zählerstand_nt"]
+            try:
+                verbrauch_ht = float(ablesung["zählerstand_ht"]) - float(prev_ablesung["zählerstand_ht"])
+                verbrauch_nt = float(ablesung["zählerstand_nt"]) - float(prev_ablesung["zählerstand_nt"])
+                verbrauch_total = verbrauch_ht + verbrauch_nt
+            except ValueError:
+                verbrauch_ht = verbrauch_nt = verbrauch_total = "N/A"
+            tag = "evenrow" if i % 2 == 0 else "oddrow"
+            self.verbrauch_table.insert("", "end", values=(
+                zeitraum,
+                zählerstand_ht,
+                zählerstand_nt,
+                verbrauch_ht,
+                verbrauch_nt,
+                verbrauch_total
+            ), tags=(tag,))
+            print(f"Added to verbrauch table: {zeitraum}")  # دیباگ
 
     def show_context_menu(self, event):
         item = self.verbrauch_table.identify_row(event.y)
