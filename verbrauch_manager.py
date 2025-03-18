@@ -52,13 +52,14 @@ class VerbrauchManager:
             return
         ablesungen = [a for a in self.data["ablesungen"] if a["vertragskonto"] == self.app.current_contract]
         ablesungen.sort(key=lambda x: datetime.strptime(x["ablesungsdatum"], "%d.%m.%Y"))
+        superscript = str.maketrans("1234", "¹²³⁴")
         for i, ablesung in enumerate(ablesungen):
             if i == 0:
-                continue  # اولین ردیف برای محاسبه مصرف نیاز به ردیف قبلی داره
+                continue
             prev_ablesung = ablesungen[i-1]
             zeitraum = f"{prev_ablesung['ablesungsdatum']} - {ablesung['ablesungsdatum']}"
-            zählerstand_ht = ablesung["zählerstand_ht"]
-            zählerstand_nt = ablesung["zählerstand_nt"]
+            zählerstand_ht = f"{ablesung['zählerstand_ht']}{ablesung['source_ht'].translate(superscript)}"
+            zählerstand_nt = f"{ablesung['zählerstand_nt']}{ablesung['source_nt'].translate(superscript)}"
             try:
                 verbrauch_ht = float(ablesung["zählerstand_ht"]) - float(prev_ablesung["zählerstand_ht"])
                 verbrauch_nt = float(ablesung["zählerstand_nt"]) - float(prev_ablesung["zählerstand_nt"])

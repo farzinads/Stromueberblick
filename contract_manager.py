@@ -83,14 +83,14 @@ class ContractManager:
         self.contract_table.heading("Vertragstyp", text="Vertragstyp")
         self.contract_table.heading("Tel", text="Tel.nummer")
         self.contract_table.heading("Email", text="E.Mailadresse")
-        self.contract_table.column("Anbieter", width=150, anchor="center")
+        self.contract_table.column("Anbieter", width=150, anchor="center", stretch=True)
         self.contract_table.column("Vertragskonto", width=120, anchor="center")
         self.contract_table.column("Vertragstyp", width=100, anchor="center")
         self.contract_table.column("Tel", width=100, anchor="center")
         self.contract_table.column("Email", width=200, anchor="center")
         self.contract_table.pack(fill="both", expand=True)
 
-        style.configure("Treeview", rowheight=25, background="#B0B0B0")
+        style.configure("Treeview", rowheight=40, background="#B0B0B0")  # افزایش ارتفاع ردیف برای دو خط
         style.configure("Treeview.Heading", font=("Arial", 10, "bold"))
         self.contract_table.tag_configure("oddrow", background="#d3d3d3")
         self.contract_table.tag_configure("evenrow", background="#ffffff")
@@ -149,9 +149,10 @@ class ContractManager:
             anbieter_match = filter_anbieter in contract.get("anbieter", "").lower() if filter_anbieter else True
             vertragstyp_match = contract.get("vertragstyp", "") == filter_vertragstyp if filter_vertragstyp else True
             if anbieter_match and vertragstyp_match:
+                anbieter_text = "\n".join(contract.get("anbieter", "").split())  # شکستن به دو خط
                 tag = "evenrow" if i % 2 == 0 else "oddrow"
                 self.contract_table.insert("", "end", values=(
-                    contract.get("anbieter", ""),
+                    anbieter_text,
                     contract["vertragskonto"],
                     contract.get("vertragstyp", ""),
                     contract.get("tel_nummer", ""),

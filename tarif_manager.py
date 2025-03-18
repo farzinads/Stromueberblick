@@ -136,7 +136,6 @@ class TarifManager:
             print("No data or current_contract not set:", self.app.current_contract)
             return
         print(f"Updating table for contract: {self.app.current_contract}")  # دیباگ
-        # سورت کردن بر اساس تاریخ "von"
         tarife = [t for t in self.data["tarife"] if t["vertragskonto"] == self.app.current_contract]
         tarife.sort(key=lambda x: datetime.strptime(x["von"], "%d.%m.%Y"))
         for i, tarif in enumerate(tarife):

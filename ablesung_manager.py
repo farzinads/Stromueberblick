@@ -26,10 +26,32 @@ class AblesungManager:
         ttk.Label(input_frame, text="Zählerstand HT:").grid(row=1, column=0, pady=5, sticky="w")
         self.zählerstand_ht = ttk.Entry(input_frame, width=15)
         self.zählerstand_ht.grid(row=1, column=1, pady=5, sticky="w")
+        self.source_ht = ttk.Combobox(input_frame, values=["A1", "A2", "A3", "A4", "B1", "B2", "B3"], width=5)
+        self.source_ht.grid(row=1, column=2, pady=5, padx=5, sticky="w")
+        self.source_ht.set("A1")
 
         ttk.Label(input_frame, text="Zählerstand NT:").grid(row=2, column=0, pady=5, sticky="w")
         self.zählerstand_nt = ttk.Entry(input_frame, width=15)
         self.zählerstand_nt.grid(row=2, column=1, pady=5, sticky="w")
+        self.source_nt = ttk.Combobox(input_frame, values=["A1", "A2", "A3", "A4", "B1", "B2", "B3"], width=5)
+        self.source_nt.grid(row=2, column=2, pady=5, padx=5, sticky="w")
+        self.source_nt.set("A1")
+
+        # جدول توضیحات
+        desc_frame = ttk.Frame(input_frame, relief="solid", borderwidth=1)
+        desc_frame.grid(row=1, column=3, rowspan=2, padx=10, pady=5, sticky="nw")
+        desc_data = [
+            ("A1", "Ablesung Messstellenbetrieber"),
+            ("A2", "Ablesung Netzbetrieber"),
+            ("A3", "Ablesung Lieferant"),
+            ("A4", "Ablesung Kunde"),
+            ("B1", "Berechnung Messstellenbetrieber"),
+            ("B2", "Berechnung Netzbetreiber"),
+            ("B3", "Berechnung Lieferant")
+        ]
+        for i, (code, desc) in enumerate(desc_data):
+            ttk.Label(desc_frame, text=code, font=("Arial", 8)).grid(row=i, column=0, padx=2, pady=2, sticky="w")
+            ttk.Label(desc_frame, text=desc, font=("Arial", 8)).grid(row=i, column=1, padx=2, pady=2, sticky="w")
 
         self.ablesung_save_button = ttk.Button(input_frame, text="Speichern", command=self.save_ablesung)
         self.ablesung_save_button.grid(row=3, column=1, pady=5, sticky="w")
@@ -69,7 +91,9 @@ class AblesungManager:
             "vertragskonto": self.app.current_contract,
             "ablesungsdatum": self.ablesungsdatum.get(),
             "zählerstand_ht": self.zählerstand_ht.get().strip(),
-            "zählerstand_nt": self.zählerstand_nt.get().strip()
+            "zählerstand_nt": self.zählerstand_nt.get().strip(),
+            "source_ht": self.source_ht.get(),
+            "source_nt": self.source_nt.get()
         }
         if not all([ablesung["ablesungsdatum"], ablesung["zählerstand_ht"]]):
             messagebox.showerror("Fehler", "Ablesungsdatum und Zählerstand HT dürfen nicht leer sein!")
@@ -85,21 +109,26 @@ class AblesungManager:
         self.ablesungsdatum.set_date("01.01.2025")
         self.zählerstand_ht.delete(0, tk.END)
         self.zählerstand_nt.delete(0, tk.END)
+        self.source_ht.set("A1")
+        self.source_nt.set("A1")
 
     def update_ablesung_table(self):
         self.ablesung_table.delete(*self.ablesung_table.get_children())
         if "ablesungen" not in self.data or not self.app.current_contract:
             print("No ablesungen data or current_contract not set:", self.app.current_contract)
             return
-        # سورت کردن بر اساس تاریخ
         ablesungen = [a for a in self.data["ablesungen"] if a["vertragskonto"] == self.app.current_contract]
         ablesungen.sort(key=lambda x: datetime.strptime(x["ablesungsdatum"], "%d.%m.%Y"))
+        # دیکشنری برای تبدیل به superscript
+        superscript = str.maketrans("1234", "¹²³⁴")
         for i, ablesung in enumerate(ablesungen):
+            ht_display = f"{ablesung['zählerstand_ht']}{ablesung['source_ht'].translate(superscript)}"
+            nt_display = f"{ablesung['zählerstand_nt']}{ablesung['source_nt'].translate(superscript)}"
             tag = "evenrow" if i % 2 == 0 else "oddrow"
             self.ablesung_table.insert("", "end", values=(
                 ablesung["ablesungsdatum"],
-                ablesung["zählerstand_ht"],
-                ablesung["zählerstand_nt"]
+                ht_display,
+                nt_display
             ), tags=(tag,))
             print(f"Added to ablesung table: {ablesung['ablesungsdatum']}")  # دیباگ
 
@@ -121,6 +150,8 @@ class AblesungManager:
                 self.zählerstand_ht.insert(0, ablesung["zählerstand_ht"])
                 self.zählerstand_nt.delete(0, tk.END)
                 self.zählerstand_nt.insert(0, ablesung["zählerstand_nt"])
+                self.source_ht.set(ablesung["source_ht"])
+                self.source_nt.set(ablesung["source_nt"])
                 self.data["ablesungen"].remove(ablesung)
                 self.update_ablesung_table()
                 self.ablesung_save_button.configure(text="Aktualisieren", command=self.update_ablesung)
