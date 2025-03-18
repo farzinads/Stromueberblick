@@ -43,9 +43,9 @@ class AblesungManager:
         style = ttk.Style()
         style.configure("Red.TButton", foreground="red", font=("Arial", 10, "bold"))
 
-        # جدول توضیحات روبه‌روی Ablesungsdatum با فاصله ۱۰۰ پیکسل
+        # جدول توضیحات با فاصله ۵۰۰ پیکسل از Ablesungsdatum
         desc_frame = ttk.Frame(self.ablesung_tab, relief="solid", borderwidth=1)
-        desc_frame.place(x=250, y=10)  # موقعیت دقیق با ۱۰۰ پیکسل فاصله از فیلد
+        desc_frame.place(x=500, y=10)
         desc_data = [
             ("A1", "Ablesung Messstellenbetrieber"),
             ("A2", "Ablesung Netzbetrieber"),
@@ -59,8 +59,9 @@ class AblesungManager:
             ttk.Label(desc_frame, text=code, font=("Arial", 10)).grid(row=i, column=0, padx=2, pady=2, sticky="w")
             ttk.Label(desc_frame, text=desc, font=("Arial", 10)).grid(row=i, column=1, padx=2, pady=2, sticky="w")
 
+        # جدول اصلی زیر جدول توضیحات با فاصله ۲۰ پیکسل
         table_frame = ttk.Frame(self.ablesung_tab, relief="solid", borderwidth=2)
-        table_frame.pack(pady=25, padx=10, fill="both", expand=True)
+        table_frame.place(x=500, y=170, width=400, height=300)  # y=170 برای فاصله ۲۰ پیکسل از desc_frame
 
         self.ablesung_table = ttk.Treeview(table_frame, columns=("Datum", "HT", "NT"), show="headings")
         self.ablesung_table.heading("Datum", text="Ablesungsdatum")
@@ -134,7 +135,7 @@ class AblesungManager:
                 ablesung["ablesungsdatum"],
                 ht_display,
                 nt_display
-            ), tags=(tag,))
+            ), tags=(tag,), text=f"font=('Arial', 12)")  # فونت ۲ شماره بزرگ‌تر
             print(f"Added to ablesung table: {ablesung['ablesungsdatum']}")  # دیباگ
 
     def show_context_menu(self, event):

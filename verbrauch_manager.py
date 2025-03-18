@@ -34,7 +34,7 @@ class VerbrauchManager:
         self.verbrauch_table.pack(fill="both", expand=True)
 
         style = ttk.Style()
-        style.configure("Treeview", rowheight=25)  # ارتفاع به حالت عادی برگشت
+        style.configure("Treeview", rowheight=25)
         style.configure("Treeview.Heading", font=("Arial", 10, "bold"))
         self.verbrauch_table.tag_configure("oddrow", background="#d3d3d3")
         self.verbrauch_table.tag_configure("evenrow", background="#ffffff")
@@ -62,17 +62,21 @@ class VerbrauchManager:
             if i == 0:
                 continue
             prev_ablesung = ablesungen[i-1]
-            # تاریخ شروع و پایان واقعی از ablesungen
             start_date = datetime.strptime(prev_ablesung["ablesungsdatum"], "%d.%m.%Y")
             end_date = datetime.strptime(ablesung["ablesungsdatum"], "%d.%m.%Y")
-            zeitraum = f"{prev_ablesung['ablesungsdatum']} - {ablesung['ablesungsdatum']}"
+            if i == 1:
+                zeitraum_start = prev_ablesung["ablesungsdatum"]
+            else:
+                # شروع از فردای پایان قبلی
+                prev_end_date = datetime.strptime(ablesungen[i-2]["ablesungsdatum"], "%d.%m.%Y")
+                zeitraum_start = (prev_end_date + timedelta(days=1)).strftime("%d.%m.%Y")
+            zeitraum = f"{zeitraum_start} - {ablesung['ablesungsdatum']}"
 
             source_ht_start = prev_ablesung.get("source_ht", "A1")
             source_nt_start = prev_ablesung.get("source_nt", "A1")
             source_ht_end = ablesung.get("source_ht", "A1")
             source_nt_end = ablesung.get("source_nt", "A1")
 
-            # نمایش مقادیر با خط تیره
             zählerstand_ht = f"{prev_ablesung['zählerstand_ht']}{''.join(superscript_map.get(char, char) for char in source_ht_start)}-{ablesung['zählerstand_ht']}{''.join(superscript_map.get(char, char) for char in source_ht_end)}"
             zählerstand_nt = f"{prev_ablesung['zählerstand_nt']}{''.join(superscript_map.get(char, char) for char in source_nt_start)}-{ablesung['zählerstand_nt']}{''.join(superscript_map.get(char, char) for char in source_nt_end)}"
 
@@ -99,7 +103,6 @@ class VerbrauchManager:
             ), tags=(tag,))
             print(f"Added to verbrauch table: {zeitraum}")
 
-        # اضافه کردن ردیف جمع کل
         if total_verbrauch != 0:
             self.verbrauch_table.insert("", "end", values=(
                 "Summe", "", "", "", "", total_verbrauch
