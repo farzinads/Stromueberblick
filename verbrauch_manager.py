@@ -38,7 +38,7 @@ class VerbrauchManager:
         style.configure("Treeview.Heading", font=("Arial", 10, "bold"))
         self.verbrauch_table.tag_configure("oddrow", background="#d3d3d3")
         self.verbrauch_table.tag_configure("evenrow", background="#ffffff")
-        self.verbrauch_table.tag_configure("summe", background="yellow", font=("Arial", 10, "bold"))  # اصلاح رنگ
+        self.verbrauch_table.tag_configure("summe", background="#A9A9A9", font=("Arial", 10, "bold"))  # خاکستری ملایم
 
         self.verbrauch_table.bind("<Button-3>", self.show_context_menu)
         self.context_menu = tk.Menu(self.root, tearoff=0)
@@ -53,7 +53,9 @@ class VerbrauchManager:
             return
         ablesungen = [a for a in self.data["ablesungen"] if a["vertragskonto"] == self.app.current_contract]
         ablesungen.sort(key=lambda x: datetime.strptime(x["ablesungsdatum"], "%d.%m.%Y"))
-        superscript = str.maketrans("1234", "¹²³⁴")
+        superscript_map = {
+            'A': 'ᴬ', 'B': 'ᴮ', '1': '¹', '2': '²', '3': '³', '4': '⁴'
+        }
         total_verbrauch = 0
 
         for i, ablesung in enumerate(ablesungen):
@@ -66,13 +68,17 @@ class VerbrauchManager:
             source_ht_end = ablesung.get("source_ht", "A1")
             source_nt_end = ablesung.get("source_nt", "A1")
 
-            # نمایش دو خطی برای Zählerstand
-            zählerstand_ht = f"Start: {prev_ablesung['zählerstand_ht']}{source_ht_start.translate(superscript)}\nEnde: {ablesung['zählerstand_ht']}{source_ht_end.translate(superscript)}"
-            zählerstand_nt = f"Start: {prev_ablesung['zählerstand_nt']}{source_nt_start.translate(superscript)}\nEnde: {ablesung['zählerstand_nt']}{source_nt_end.translate(superscript)}"
+            # فقط مقادیر با مولفه‌ها
+            zählerstand_ht = f"{prev_ablesung['zählerstand_ht']}{''.join(superscript_map.get(char, char) for char in source_ht_start)}\n{ablesung['zählerstand_ht']}{''.join(superscript_map.get(char, char) for char in source_ht_end)}"
+            zählerstand_nt = f"{prev_ablesung['zählerstand_nt']}{''.join(superscript_map.get(char, char) for char in source_nt_start)}\n{ablesung['zählerstand_nt']}{''.join(superscript_map.get(char, char) for char in source_nt_end)}"
 
             try:
-                verbrauch_ht = float(prev_ablesung["zählerstand_ht"]) - float(ablesung["zählerstand_ht"])
-                verbrauch_nt = float(prev_ablesung["zählerstand_nt"]) - float(ablesung["zählerstand_nt"])
+                ht_start = float(prev_ablesung["zählerstand_ht"])
+                ht_end = float(ablesung["zählerstand_ht"])
+                nt_start = float(prev_ablesung["zählerstand_nt"])
+                nt_end = float(ablesung["zählerstand_nt"])
+                verbrauch_ht = ht_end - ht_start  # مقدار بیشتر - کمتر
+                verbrauch_nt = nt_end - nt_start
                 verbrauch_total = verbrauch_ht + verbrauch_nt
                 total_verbrauch += verbrauch_total
             except ValueError:

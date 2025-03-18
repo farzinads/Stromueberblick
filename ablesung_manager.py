@@ -37,9 +37,19 @@ class AblesungManager:
         self.source_nt.grid(row=2, column=2, pady=5, padx=5, sticky="w")
         self.source_nt.set("A1")
 
-        # جدول توضیحات به سمت راست منتقل شده
+        self.ablesung_save_button = ttk.Button(input_frame, text="Speichern", command=self.save_ablesung)
+        self.ablesung_save_button.grid(row=3, column=1, pady=5, sticky="w")
+        self.ablesung_save_button.configure(style="Red.TButton")
+        style = ttk.Style()
+        style.configure("Red.TButton", foreground="red", font=("Arial", 10, "bold"))
+
+        # جدول اصلی
+        table_frame = ttk.Frame(self.ablesung_tab, relief="solid", borderwidth=2)
+        table_frame.pack(pady=25, padx=10, fill="both", expand=True)
+
+        # جدول توضیحات بالای جدول اصلی سمت راست
         desc_frame = ttk.Frame(self.ablesung_tab, relief="solid", borderwidth=1)
-        desc_frame.pack(side="right", padx=50, pady=30, anchor="ne")
+        desc_frame.pack(side="right", padx=10, pady=(10, 0), anchor="ne")  # بالای جدول اصلی
         desc_data = [
             ("A1", "Ablesung Messstellenbetrieber"),
             ("A2", "Ablesung Netzbetrieber"),
@@ -52,15 +62,6 @@ class AblesungManager:
         for i, (code, desc) in enumerate(desc_data):
             ttk.Label(desc_frame, text=code, font=("Arial", 8)).grid(row=i, column=0, padx=2, pady=2, sticky="w")
             ttk.Label(desc_frame, text=desc, font=("Arial", 8)).grid(row=i, column=1, padx=2, pady=2, sticky="w")
-
-        self.ablesung_save_button = ttk.Button(input_frame, text="Speichern", command=self.save_ablesung)
-        self.ablesung_save_button.grid(row=3, column=1, pady=5, sticky="w")
-        self.ablesung_save_button.configure(style="Red.TButton")
-        style = ttk.Style()
-        style.configure("Red.TButton", foreground="red", font=("Arial", 10, "bold"))
-
-        table_frame = ttk.Frame(self.ablesung_tab, relief="solid", borderwidth=2)
-        table_frame.pack(pady=25, padx=10, fill="both", expand=True)
 
         self.ablesung_table = ttk.Treeview(table_frame, columns=("Datum", "HT", "NT"), show="headings")
         self.ablesung_table.heading("Datum", text="Ablesungsdatum")
@@ -119,12 +120,17 @@ class AblesungManager:
             return
         ablesungen = [a for a in self.data["ablesungen"] if a["vertragskonto"] == self.app.current_contract]
         ablesungen.sort(key=lambda x: datetime.strptime(x["ablesungsdatum"], "%d.%m.%Y"))
-        superscript = str.maketrans("1234", "¹²³⁴")
+        superscript_map = {
+            'A': 'ᴬ', 'B': 'ᴮ', '1': '¹', '2': '²', '3': '³', '4': '⁴'
+        }
         for i, ablesung in enumerate(ablesungen):
             source_ht = ablesung.get("source_ht", "A1")
             source_nt = ablesung.get("source_nt", "A1")
-            ht_display = f"{ablesung['zählerstand_ht']}{source_ht.translate(superscript)}"
-            nt_display = f"{ablesung['zählerstand_nt']}{source_nt.translate(superscript)}"
+            # تبدیل کل مولفه به superscript
+            ht_superscript = ''.join(superscript_map.get(char, char) for char in source_ht)
+            nt_superscript = ''.join(superscript_map.get(char, char) for char in source_nt)
+            ht_display = f"{ablesung['zählerstand_ht']}{ht_superscript}"
+            nt_display = f"{ablesung['zählerstand_nt']}{nt_superscript}"
             tag = "evenrow" if i % 2 == 0 else "oddrow"
             self.ablesung_table.insert("", "end", values=(
                 ablesung["ablesungsdatum"],
