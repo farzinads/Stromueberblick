@@ -10,8 +10,39 @@
             "vertragsbeginn": "01.01.2025"
         }
     ],
-    "tarife": [],
-    "ablesungen": [],
+    "tarife": [
+        {
+            "vertragskonto": "25253",
+            "von": "20.09.2024",
+            "bis": "31.01.2025",
+            "arbeitspreis_ht": "36.71",
+            "idht": "HT01",
+            "arbeitspreis_nt": "0",
+            "idnt": "NT01",
+            "grundpreis": "148.55",
+            "idgr": "GT01",
+            "zähler": "16.81",
+            "idzl": "ZT01"
+        }
+    ],
+    "ablesungen": [
+        {
+            "vertragskonto": "25253",
+            "ablesungsdatum": "20.09.2024",
+            "zählerstand_ht": "4531",
+            "zählerstand_nt": "0",
+            "source_ht": "B1",
+            "source_nt": "A1"
+        },
+        {
+            "vertragskonto": "25253",
+            "ablesungsdatum": "31.12.2024",
+            "zählerstand_ht": "5939",
+            "zählerstand_nt": "0",
+            "source_ht": "B3",
+            "source_nt": "A1"
+        }
+    ],
     "zahlungen": [],
     "rechnungen": []
 }
